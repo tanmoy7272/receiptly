@@ -1,0 +1,62 @@
+// Prisma Schema for Receiptly (v2.1 Phase A)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  receipts  Receipt[]
+
+  @@map("users")
+}
+
+model Receipt {
+  id                 String   @id @default(uuid())
+  title              String
+  merchant           String
+  merchantNormalized String
+  amount             Float
+  currency           String   @default("INR")
+  purchaseDate       DateTime
+  category           String
+  notes              String?
+  fileUrl            String
+  filePublicId       String?
+  fileType           String
+  aiExtractionStatus String   @default("NOT_STARTED")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Phase A Architecture Fields
+  invoiceNumber      String?
+  merchantProvenance String   @default("MANUAL") // AI, MANUAL, AI_EDITED, UNKNOWN
+  amountProvenance   String   @default("MANUAL") // AI, MANUAL, AI_EDITED, UNKNOWN
+
+  // Flat Warranty Model
+  hasWarranty        Boolean   @default(false)
+  warrantyExpiryDate DateTime?
+  warrantyMonths     Int?
+  warrantySource     String    @default("NONE") // EXPLICIT_DATE, DURATION, MANUAL, USER_EDITED, NONE
+
+  @@index([userId])
+  @@index([merchantNormalized])
+  @@index([category])
+  @@index([purchaseDate])
+  @@index([createdAt])
+  @@index([invoiceNumber])
+  @@index([warrantyExpiryDate])
+  @@map("receipts")
+}
