@@ -31,7 +31,7 @@ export const performLocalOCR = async (imageBuffer) => {
     try {
       bufferToProcess = await sharp(imageBuffer)
         .rotate() // Auto-orient smartphone EXIF camera photos right-side up
-        .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
+        .resize({ width: 1000, height: 1000, fit: 'inside', withoutEnlargement: true })
         .grayscale() // Remove background color noise & shadows
         .normalize() // Stretch contrast: dark text on bright white background for dim/unclear receipts
         .sharpen() // Sharpen blurry character edges for maximum OCR clarity
@@ -43,7 +43,7 @@ export const performLocalOCR = async (imageBuffer) => {
 
     worker = await createWorker('eng');
     await worker.setParameters({
-      tessedit_pageseg_mode: '6', // PSM_SINGLE_BLOCK: Assumes a single uniform block of text. Preserves top-to-bottom line structure of thermal bills.
+      tessedit_pageseg_mode: '3', // PSM_AUTO: Automatic page segmentation for fast robust text recognition
       tessedit_enable_dict_correction: '0', // Disables dictionary lookups for 3x faster character recognition speed
     });
     const { data: { text } } = await worker.recognize(bufferToProcess);
