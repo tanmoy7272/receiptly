@@ -6,6 +6,7 @@ export const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   jwtSecret: process.env.JWT_SECRET,
   databaseUrl: process.env.DATABASE_URL,
+  groqModel: process.env.GROQ_MODEL || process.env.GROQ_TEXT_MODEL || 'llama-3.3-70b-versatile',
 };
 
 export const validateEnv = () => {

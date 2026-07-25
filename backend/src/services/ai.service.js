@@ -18,9 +18,9 @@ const groqApiKey = process.env.GROQ_API_KEY;
 const isGroqConfigured = Boolean(groqApiKey && groqApiKey !== 'gsk_your_groq_api_key_here');
 const groq = isGroqConfigured ? new Groq({ apiKey: groqApiKey }) : null;
 
-// Active Flagship Groq Models
-const TEXT_MODEL = 'llama-3.3-70b-versatile';
-const VISION_MODEL = 'llama-3.3-70b-versatile';
+// Configurable Groq Models via Environment Variables
+const TEXT_MODEL = process.env.GROQ_MODEL || process.env.GROQ_TEXT_MODEL || 'llama-3.3-70b-versatile';
+const VISION_MODEL = process.env.GROQ_MODEL || process.env.GROQ_VISION_MODEL || 'llama-3.3-70b-versatile';
 
 const SYSTEM_PROMPT = `
 You are an enterprise financial document extraction model for Receiptly designed to output valid JSON.
