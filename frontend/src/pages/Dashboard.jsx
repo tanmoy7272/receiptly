@@ -161,13 +161,13 @@ export const Dashboard = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Link to={ROUTES.RECEIPT_NEW}>
-            <Button variant="primary" className="gap-2">
+        <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+          <Link to={ROUTES.RECEIPT_NEW} className="flex-1 sm:flex-initial">
+            <Button variant="primary" className="w-full justify-center gap-2">
               <Plus className="h-4 w-4" /> Upload Receipt
             </Button>
           </Link>
-          <Button variant="outline" onClick={logout}>
+          <Button variant="outline" onClick={logout} className="flex-1 sm:flex-initial justify-center">
             Sign Out
           </Button>
         </div>
@@ -192,7 +192,7 @@ export const Dashboard = () => {
         />
       ) : (
         /* Full Dashboard Layout */
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <ConfirmDialog
             isOpen={Boolean(deleteReceiptId)}
             title="Delete this receipt?"
@@ -204,8 +204,8 @@ export const Dashboard = () => {
             onCancel={() => setDeleteReceiptId(null)}
           />
 
-          {/* Overview Cards Row */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Overview Cards Row - 2x2 Grid on Mobile, 4-Cols on Desktop */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
             <Card className="p-5">
               <div className="flex items-center justify-between text-slate-500 mb-2">
                 <span className="text-xs font-semibold uppercase tracking-wider">Total Receipts</span>

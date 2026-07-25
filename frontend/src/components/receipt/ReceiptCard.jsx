@@ -101,22 +101,22 @@ export const ReceiptCard = ({ receipt, onDelete }) => {
         )}
       </div>
 
-      <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 mt-2">
-        <Link to={ROUTES.RECEIPT_DETAIL(receipt.id)}>
-          <button className="inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors">
+      <div className="grid grid-cols-3 gap-1 sm:flex sm:items-center sm:justify-end sm:gap-2 pt-3 border-t border-slate-100 mt-2">
+        <Link to={ROUTES.RECEIPT_DETAIL(receipt.id)} className="w-full sm:w-auto">
+          <button className="w-full justify-center inline-flex items-center gap-1 rounded py-1.5 px-2 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors bg-slate-50 sm:bg-transparent">
             <Eye className="h-3.5 w-3.5" /> View
           </button>
         </Link>
 
-        <Link to={ROUTES.RECEIPT_EDIT(receipt.id)}>
-          <button className="inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors">
+        <Link to={ROUTES.RECEIPT_EDIT(receipt.id)} className="w-full sm:w-auto">
+          <button className="w-full justify-center inline-flex items-center gap-1 rounded py-1.5 px-2 text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors bg-slate-50 sm:bg-transparent">
             <Edit3 className="h-3.5 w-3.5" /> Edit
           </button>
         </Link>
 
         <button
           onClick={() => onDelete(receipt.id)}
-          className="inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+          className="w-full justify-center inline-flex items-center gap-1 rounded py-1.5 px-2 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors bg-red-50/50 sm:bg-transparent"
         >
           <Trash2 className="h-3.5 w-3.5" /> Delete
         </button>
