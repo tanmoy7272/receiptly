@@ -1,70 +1,74 @@
 # Receiptly
 
-Store all your receipts, bills, and invoices in one searchable place. Never lose a warranty proof or tax receipt again.
+> **Store, extract, search, and track purchase receipts, invoices, and warranties forever.**
+
+Receiptly is a full-stack, single-tenant SaaS application built with **React (Vite)**, **Node.js (Express)**, **Prisma ORM**, and **Neon PostgreSQL**. It uses AI document parsing to extract merchant details, total amounts, dates, and warranty terms automatically from images, PDFs, and Word documents.
 
 ---
 
-## What is Receiptly?
+## 🌐 Live Production Demo
 
-Receiptly is a web app for organizing purchase receipts, utility bills, travel invoices, and fee receipts. It uses AI to automatically scan and extract key details like merchant name, date, total amount, category, and warranty details so you don't have to type them manually.
-
----
-
-## Core Features
-
-- **Secure Authentication:** Cookie-based JWT auth with HTTP-Only flags, password hashing with `bcryptjs`, and session expiry handling.
-- **Receipt Management:** Upload receipts as images (JPEG, PNG, WebP), PDFs, or Word docs (`.docx`). Edit, view, and delete anytime.
-- **AI Extraction Pipeline:** Uses Groq (`llama-3.3-70b-versatile`) to extract receipt title, vendor, amount, purchase date, invoice number, and category.
-- **Smart Filtering & Search:** Search by merchant, item title, or notes. Filter by category, currency, date range, or amount.
-- **Spending Dashboard:** Visual breakdown of monthly spending trends (Chart.js) and top expense categories.
-- **Warranty Tracking:** Tracks remaining warranty days and highlights expiring warranties with clear status badges.
+- 🚀 **Live Web Application:** [https://receiptly-eta.vercel.app](https://receiptly-eta.vercel.app)
+- ⚙️ **Production API Endpoint:** [https://receiptly-8amx.onrender.com/api/v1](https://receiptly-8amx.onrender.com/api/v1)
 
 ---
 
-## Tech Stack
+## ✨ Core Features
 
-| Layer | Tech |
-| :--- | :--- |
-| **Frontend** | React 18, Vite, Tailwind CSS, React Router v6, Chart.js, Lucide Icons |
-| **Backend** | Node.js, Express.js, Multer, Helmet, Express-Rate-Limit, Compression |
-| **Database** | PostgreSQL / SQLite (via Prisma ORM) |
-| **Storage & AI** | Cloudinary (Files/PDFs), Groq SDK (Llama 70B Vision/Text) |
-| **Testing** | Vitest, Supertest, React Testing Library, jsdom |
+- **🔒 Secure Authentication:** Cross-site HTTP-Only JWT cookies with `SameSite=None`, `Secure=true`, bcrypt password hashing, and automatic 401 session expiry handling.
+- **📄 Universal Document Support:** Upload images (JPEG, PNG, WebP), digital PDFs, scanned PDFs, or Word documents (`.docx`). Inline image previews & full asset deletion via Cloudinary.
+- **🤖 AI-Assisted OCR Pipeline:** Groq SDK (`llama-3.3-70b-versatile`) extracts title, vendor, amount, purchase date, invoice number, and category. Operates strictly read-only with non-blocking 10-second fail-safe timeouts.
+- **🔍 Smart Search & Discovery:** Debounced text query search across title, merchant, notes, and invoice numbers. Dynamic filtering by category, currency, date range, and amount bounds.
+- **📊 Analytics Dashboard:** Overview spending statistic cards, category spend breakdown (with mobile-responsive cards), and rolling 6-month spending trend line charts via Chart.js.
+- **🛡️ Warranty Lifecycle Tracking:** Data-driven warranty coverage tracking with remaining days calculation and static status badges (`Active`, `Expiring Soon`, `Expired`).
+- **📱 Mobile Responsive & Accessible:** Scoped 44px tap targets, iOS Safari focus zoom prevention (`text-base sm:text-sm`), native OS file/camera pickers, and `safe-area-inset` support for iPhone notches.
 
 ---
 
-## Project Structure
+## 🛠️ Production Tech Stack
+
+| Layer | Technology | Infrastructure |
+| :--- | :--- | :--- |
+| **Frontend** | React 18, Vite, Tailwind CSS, React Router v6, Chart.js | Vercel (Global CDN) |
+| **Backend** | Node.js, Express.js, Multer, Helmet, Rate-Limit, Compression | Render Web Service |
+| **Database** | PostgreSQL (Prisma ORM) | Neon PostgreSQL Cloud |
+| **Storage & AI** | Cloudinary SDK (Media & PDFs), Groq SDK (Llama 70B) | Cloudinary & Groq Cloud |
+| **Testing** | Vitest, Supertest, React Testing Library, jsdom | Local & CI Pipeline |
+
+---
+
+## 📁 Repository Structure
 
 ```text
-rec/
+receiptly/
 ├── backend/
-│   ├── prisma/          # Prisma schema & seed script
+│   ├── prisma/          # Database schema & seed scripts
 │   ├── src/
-│   │   ├── config/      # Env & security setup
-│   │   ├── controllers/ # HTTP route handlers
-│   │   ├── middlewares/ # Auth, rate limit, upload, error handling
-│   │   ├── routes/      # Express API routers
-│   │   ├── services/    # Business logic & DB access
+│   │   ├── config/      # Env config & boot validation
+│   │   ├── controllers/ # Express route controllers
+│   │   ├── middlewares/ # Auth, rate limit, upload & error handlers
+│   │   ├── routes/      # API routers
+│   │   ├── services/    # Business logic, Prisma & AI pipelines
 │   │   ├── utils/       # OCR & logger utilities
-│   │   └── validators/  # Zod request validation
-│   └── tests/           # Vitest unit & integration tests
+│   │   └── validators/  # Zod request validation schemas
+│   └── tests/           # Vitest unit & route integration tests
 ├── frontend/
 │   ├── src/
-│   │   ├── components/  # Forms, cards, UI elements
-│   │   ├── context/     # Auth & Toast context providers
-│   │   ├── hooks/       # Custom React hooks (debounce, title)
+│   │   ├── components/  # Forms, cards, layouts, UI primitives
+│   │   ├── context/     # AuthContext & ToastContext providers
+│   │   ├── hooks/       # Custom React hooks (useDebounce, useDocumentTitle)
 │   │   ├── pages/       # Lazy-loaded route pages
 │   │   └── services/    # apiClient & API wrappers
-│   └── src/__tests__/   # Vitest frontend tests
-└── docs/                # Architecture, API & deployment docs
+│   └── src/__tests__/   # Vitest & React Testing Library tests
+└── docs/                # API, Architecture, Deployment & OCR guides
 ```
 
 ---
 
-## Local Setup
+## 🚀 Quick Start & Local Setup
 
 ### 1. Prerequisites
-- Node.js `v18` or higher
+- Node.js `v18+`
 - PostgreSQL or SQLite
 
 ### 2. Environment Configuration
@@ -79,16 +83,16 @@ cp frontend/.env.example frontend/.env
 cd backend
 npm install
 npx prisma generate
-npx prisma migrate dev --name init
+npx prisma db push
 
-# (Optional) Seed demo user data
+# (Optional) Seed development demo data
 npx prisma db seed
 
-# Run backend dev server (Port 5000)
+# Start backend dev server (Port 5000)
 npm run dev
 ```
 
-> **Demo Login:**  
+> **Demo Login Credentials:**  
 > Email: `demo@receiptly.app`  
 > Password: `Password123!`
 
@@ -97,34 +101,35 @@ npm run dev
 cd ../frontend
 npm install
 
-# Run frontend dev server (Port 5173)
+# Start frontend dev server (Port 5173)
 npm run dev
 ```
 
 ---
 
-## Running Tests
+## 🧪 Running Automated Test Suite
 
 ```bash
-# Backend tests
+# Backend unit & route integration tests (18 tests passing)
 cd backend && npm test
 
-# Frontend tests
+# Frontend component & interceptor tests (6 tests passing)
 cd frontend && npm test
 ```
 
-## Documentation
+---
 
-For technical details and deployment guides, see:
-- [🚀 100% Free Deployment Guide](docs/FREE_DEPLOYMENT_GUIDE.md)
-- [API Reference](docs/API.md)
-- [System Architecture](docs/ARCHITECTURE.md)
-- [Production Deployment Guide](docs/DEPLOYMENT.md)
-- [OCR & Text Extraction Guide](docs/OCR.md)
-- [Changelog](CHANGELOG.md)
+## 📖 Technical Documentation
+
+- 🚀 [100% Free Production Deployment Guide](docs/FREE_DEPLOYMENT_GUIDE.md)
+- 📑 [API Reference](docs/API.md)
+- 🏗️ [System Architecture & Data Flow](docs/ARCHITECTURE.md)
+- 🚀 [Production Deployment Guide](docs/DEPLOYMENT.md)
+- 📄 [OCR & Document Text Extraction Guide](docs/OCR.md)
+- 📜 [Changelog & Release History](CHANGELOG.md)
 
 ---
 
-## License
+## 📜 License
 
-[MIT](LICENSE)
+Licensed under the [MIT License](LICENSE).
