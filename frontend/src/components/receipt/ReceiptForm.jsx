@@ -188,7 +188,7 @@ export const ReceiptForm = ({
           <div className="relative border-2 border-dashed border-slate-300 hover:border-slate-400 rounded-xl p-6 text-center transition-colors bg-slate-50/50">
             <input
               type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
               onChange={handleFileChange}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               disabled={loading || aiParsing}

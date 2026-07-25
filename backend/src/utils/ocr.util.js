@@ -30,8 +30,10 @@ export const performLocalOCR = async (imageBuffer) => {
     let bufferToProcess = imageBuffer;
     try {
       bufferToProcess = await sharp(imageBuffer)
+        .rotate() // Auto-orient smartphone EXIF camera photos right-side up
         .resize({ width: 1200, withoutEnlargement: true })
         .grayscale()
+        .toFormat('jpeg') // Normalize HEIC/PNG/WebP/BMP to JPEG for 100% OCR engine compatibility
         .toBuffer();
     } catch (sharpErr) {
       logger.warn('Sharp image preprocessing warning, using raw buffer:', sharpErr.message);
