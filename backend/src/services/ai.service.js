@@ -36,6 +36,7 @@ RULES FOR EXTRACTION:
 3. amount: Extract the FINAL NET GRAND TOTAL AMOUNT PAID as a plain numeric float.
    - For multi-page order bundles under a single Order ID where costs are itemized across pages (e.g. product price + platform fee + GT charges), calculate or extract the full net total paid for the entire order across all pages.
    - Do NOT select small individual delivery fee subtotals or tax components.
+4. currency: 3-letter currency code (default "INR").
 5. purchaseDate: Search specifically inside document headers for "Invoice Date", "Order Date", "Billing Date", "Date", or "Transaction Date". Format strictly as YYYY-MM-DD. For thermal bills with dates like "Date: 24/07/26", parse 24 as Day, 07 as Month, 26 as 2026, returning "2026-07-24". Never leave purchaseDate null if any date pattern (DD/MM/YY or DD/MM/YYYY) is present in the document.
 6. category: Exactly one of: [${RECEIPT_CATEGORIES.map((c) => `"${c}"`).join(', ')}].
 7. invoiceNumber: Primary Order ID (e.g. "OD438060927150219100"), Invoice Number, Bill No, or Tax ID printed on the document.
