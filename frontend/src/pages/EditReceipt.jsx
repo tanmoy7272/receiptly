@@ -20,6 +20,10 @@ export const EditReceipt = () => {
 
   useEffect(() => {
     const fetchReceipt = async () => {
+      if (!id || id === 'new') {
+        setInitialLoading(false);
+        return;
+      }
       try {
         setInitialLoading(true);
         const data = await receiptService.getReceiptById(id);

@@ -55,6 +55,10 @@ export const ReceiptDetail = () => {
   });
 
   const fetchReceipt = async () => {
+    if (!id || id === 'new') {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       const data = await receiptService.getReceiptById(id);
