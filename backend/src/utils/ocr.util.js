@@ -53,13 +53,13 @@ export const extractDocumentText = async (fileBuffer, mimetype) => {
   // 1. Digital PDF Documents (Reads ALL pages & inspects page count)
   if (isPdf) {
     const { text, numpages } = await inspectPdfBuffer(fileBuffer);
-    if (text && text.length >= 10) {
+    if (text && text.length >= 2) {
       logger.info(`Extracted ${text.length} characters across ${numpages} PDF page(s).`);
       return { type: 'text', content: text, numpages };
     }
     // Image/Scanned PDF Fallback: Run Tesseract OCR on image buffer
     const ocrText = await performLocalOCR(fileBuffer);
-    if (ocrText && ocrText.length >= 10) {
+    if (ocrText && ocrText.length >= 2) {
       logger.info(`Tesseract OCR extracted ${ocrText.length} characters from scanned PDF/image buffer.`);
       return { type: 'text', content: ocrText, numpages };
     }
@@ -82,7 +82,7 @@ export const extractDocumentText = async (fileBuffer, mimetype) => {
   // 3. Receipt Images / Photos (JPEG, PNG, WebP) -> Tesseract WASM OCR
   if (!isPdf) {
     const ocrText = await performLocalOCR(fileBuffer);
-    if (ocrText && ocrText.length >= 10) {
+    if (ocrText && ocrText.length >= 2) {
       logger.info(`Tesseract OCR extracted ${ocrText.length} characters from image.`);
       return { type: 'text', content: ocrText, numpages: 1 };
     }

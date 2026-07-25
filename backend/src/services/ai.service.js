@@ -125,7 +125,7 @@ export const parseReceiptWithAI = async (receipt) => {
   const extractedDoc = await extractDocumentText(fileBuffer, receipt.fileType);
   const docText = extractedDoc.content || '';
   const numpages = extractedDoc.numpages || 1;
-  const isTextDoc = extractedDoc.type === 'text' && docText.length >= 10;
+  const isTextDoc = extractedDoc.type === 'text' && docText.length >= 2;
 
   let messages = [];
   const modelToUse = TEXT_MODEL;
