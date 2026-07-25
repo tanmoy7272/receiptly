@@ -7,6 +7,21 @@ import dashboardRoutes from './dashboard.routes.js';
 
 const router = Router();
 
+router.get('/', (req, res) => {
+  res.json({
+    name: 'Receiptly API',
+    version: '1.0.0',
+    status: 'online',
+    documentation: 'https://github.com/tanmoy7272/receiptly',
+    endpoints: {
+      health: '/api/v1/health',
+      auth: '/api/v1/auth',
+      receipts: '/api/v1/receipts',
+      dashboard: '/api/v1/dashboard',
+    },
+  });
+});
+
 router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/dashboard', dashboardRoutes);
