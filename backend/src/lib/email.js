@@ -133,8 +133,8 @@ export const sendOtpEmail = async (to, otp, purpose) => {
   const senderEmail = fromMatch[1] || config.smtpFrom.trim();
 
   // Try Brevo HTTPS REST API first for ultra-fast, firewall-proof delivery
-  const apiKey = config.brevoApiKey || config.smtpPass;
-  if (apiKey && (apiKey.startsWith('xkeysib-') || apiKey.startsWith('xsmtpsib-'))) {
+  const apiKey = config.brevoApiKey;
+  if (apiKey && apiKey.startsWith('xkeysib-')) {
     try {
       const response = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',

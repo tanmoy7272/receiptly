@@ -11,7 +11,7 @@ export const config = {
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
   groqApiKey: process.env.GROQ_API_KEY,
-  // SMTP & API (Brevo) — Email Verification & Password Reset
+  // SMTP (Brevo) — Email Verification & Password Reset
   smtpHost: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
   smtpPort: parseInt(process.env.SMTP_PORT, 10) || 587,
   smtpUser: process.env.SMTP_USER,
