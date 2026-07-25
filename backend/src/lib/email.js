@@ -140,7 +140,7 @@ export const sendOtpEmail = async (to, otp, purpose) => {
     logger.info(`OTP email sent to ${to} (purpose: ${purpose}, messageId: ${info.messageId})`);
     return info;
   } catch (error) {
-    logger.error(`Failed to send OTP email to ${to}`, error.message);
+    logger.error(`Failed to send OTP email to ${to}`, error.stack || error.message);
     throw error;
   }
 };

@@ -24,9 +24,43 @@ export const registerUser = async ({ name, email, password }) => {
   });
 
   if (existingUser) {
-    const error = new Error(ERROR_MESSAGES.EMAIL_IN_USE);
-    error.statusCode = 400;
-    throw error;
+    if (existingUser.isVerified !== false) {
+      const error = new Error(ERROR_MESSAGES.EMAIL_IN_USE);
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // Unverified user exists: update name, password & generate fresh OTP
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const otp = generateOtp();
+    const otpHashed = await hashOtp(otp);
+    const otpExpiry = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
+
+    const user = await prisma.user.update({
+      where: { id: existingUser.id },
+      data: {
+        name: normalizedName,
+        password: hashedPassword,
+        otpHash: otpHashed,
+        otpExpiry,
+        otpPurpose: 'EMAIL_VERIFICATION',
+        otpAttempts: 0,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    sendOtpEmail(normalizedEmail, otp, 'EMAIL_VERIFICATION').catch((err) => {
+      logger.error('Failed to send verification email during re-registration', err.stack || err.message);
+    });
+
+    return user;
   }
 
   // Hash password
