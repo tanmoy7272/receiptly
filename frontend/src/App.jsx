@@ -14,6 +14,7 @@ import { ROUTES } from './utils/constants';
 const Landing = lazy(() => import('./pages/Landing').then((m) => ({ default: m.Landing })));
 const Login = lazy(() => import('./pages/Login').then((m) => ({ default: m.Login })));
 const Register = lazy(() => import('./pages/Register').then((m) => ({ default: m.Register })));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword').then((m) => ({ default: m.ForgotPassword })));
 const Dashboard = lazy(() => import('./pages/Dashboard').then((m) => ({ default: m.Dashboard })));
 const ReceiptList = lazy(() => import('./pages/ReceiptList').then((m) => ({ default: m.ReceiptList })));
 const UploadReceipt = lazy(() => import('./pages/UploadReceipt').then((m) => ({ default: m.UploadReceipt })));
@@ -64,6 +65,14 @@ export default function App() {
                   element={
                     <Suspense fallback={<GenericPageFallback />}>
                       <Register />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={ROUTES.FORGOT_PASSWORD}
+                  element={
+                    <Suspense fallback={<GenericPageFallback />}>
+                      <ForgotPassword />
                     </Suspense>
                   }
                 />

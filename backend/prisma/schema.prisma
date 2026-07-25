@@ -10,13 +10,18 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  name      String
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  receipts  Receipt[]
+  id          String    @id @default(uuid())
+  name        String
+  email       String    @unique
+  password    String
+  isVerified  Boolean   @default(true)
+  otpHash     String?
+  otpExpiry   DateTime?
+  otpPurpose  String?
+  otpAttempts Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  receipts    Receipt[]
 
   @@map("users")
 }

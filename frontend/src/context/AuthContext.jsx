@@ -73,7 +73,9 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     const data = await authService.register(userData);
-    if (data?.user) {
+    // New flow: registration returns requiresVerification=true.
+    // Auto-login only happens after email verification (via verifyEmail).
+    if (data?.user && data?.token) {
       if (data.token) {
         localStorage.setItem('receiptly_token', data.token);
       }

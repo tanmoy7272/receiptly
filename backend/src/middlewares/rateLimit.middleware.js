@@ -38,3 +38,9 @@ export const generalRateLimiter = createLimiter(
   15,
   'Too many requests. Please wait a few minutes before trying again.'
 );
+
+export const otpRateLimiter = createLimiter(
+  5,
+  15,
+  'Too many verification attempts. Please wait 15 minutes before trying again.'
+);

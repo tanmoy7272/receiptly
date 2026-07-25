@@ -15,7 +15,7 @@ import compression from 'compression';
 
 import { validateEnv, getClientOrigins } from './config/env.js';
 import { requestLogger } from './middlewares/requestLogger.middleware.js';
-import { generalRateLimiter, authRateLimiter, aiRateLimiter } from './middlewares/rateLimit.middleware.js';
+import { generalRateLimiter, authRateLimiter, aiRateLimiter, otpRateLimiter } from './middlewares/rateLimit.middleware.js';
 import { notFoundHandler } from './middlewares/notFound.middleware.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 import routes from './routes/index.js';
@@ -94,6 +94,10 @@ app.use(cookieParser());
 // Rate Limiters
 app.use('/api/v1/auth/login', authRateLimiter);
 app.use('/api/v1/auth/register', authRateLimiter);
+app.use('/api/v1/auth/verify-email', otpRateLimiter);
+app.use('/api/v1/auth/forgot-password', otpRateLimiter);
+app.use('/api/v1/auth/reset-password', otpRateLimiter);
+app.use('/api/v1/auth/resend-otp', otpRateLimiter);
 app.use('/api/v1/receipts/:id/extract', aiRateLimiter);
 app.use('/api/v1', generalRateLimiter);
 

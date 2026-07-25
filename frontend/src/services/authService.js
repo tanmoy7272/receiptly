@@ -22,4 +22,28 @@ export const authService = {
     apiClient('/auth/me', {
       method: 'GET',
     }),
+
+  verifyEmail: ({ email, otp }) =>
+    apiClient('/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp }),
+    }),
+
+  forgotPassword: ({ email }) =>
+    apiClient('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: ({ email, otp, newPassword }) =>
+    apiClient('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp, newPassword }),
+    }),
+
+  resendOtp: ({ email, purpose }) =>
+    apiClient('/auth/resend-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, purpose }),
+    }),
 };
