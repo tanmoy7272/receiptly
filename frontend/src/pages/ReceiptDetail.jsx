@@ -24,7 +24,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { receiptService } from '../services/receiptService';
 import { ROUTES, RECEIPT_CATEGORIES } from '../utils/constants';
 import { getWarrantyBadge } from '../components/receipt/ReceiptCard';
-import { formatIndianDate } from '../utils/formatters';
+import { formatIndianDate, formatINR } from '../utils/formatters';
 
 export const ReceiptDetail = () => {
   const { id } = useParams();
@@ -151,8 +151,7 @@ export const ReceiptDetail = () => {
   };
 
   const formatCurrency = (amount, currencyKey = 'INR') => {
-    const num = Number(amount) || 0;
-    return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return formatINR(amount, currencyKey);
   };
 
   const formatDate = (dateStr) => {

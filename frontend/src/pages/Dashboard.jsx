@@ -35,6 +35,7 @@ import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { dashboardService } from '../services/dashboardService';
 import { receiptService } from '../services/receiptService';
 import { ROUTES } from '../utils/constants';
+import { formatINR } from '../utils/formatters';
 
 ChartJS.register(
   CategoryScale,
@@ -91,8 +92,7 @@ export const Dashboard = () => {
   };
 
   const formatCurrency = (val) => {
-    const num = Number(val) || 0;
-    return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return formatINR(val, 'INR');
   };
 
   const overview = dashboardData?.overview || {};
