@@ -267,13 +267,12 @@ export const updateReceipt = async (userId, receiptId, data, file) => {
 export const deleteReceipt = async (userId, receiptId) => {
   const existingReceipt = await getReceiptById(userId, receiptId);
 
-  if (existingReceipt.filePublicId) {
-    await deleteFromCloudinary(existingReceipt.filePublicId, existingReceipt.fileType);
-  }
-
-  await prisma.receipt.delete({
-    where: { id: receiptId },
-  });
+  await Promise.all([
+    existingReceipt.filePublicId
+      ? deleteFromCloudinary(existingReceipt.filePublicId, existingReceipt.fileType)
+      : Promise.resolve(),
+    prisma.receipt.delete({ where: { id: receiptId } }),
+  ]);
 
   return true;
 };
