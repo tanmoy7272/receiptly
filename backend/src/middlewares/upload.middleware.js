@@ -2,21 +2,18 @@ import multer from 'multer';
 
 const storage = multer.memoryStorage();
 
-const ALLOWED_MIME_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/jpg',
-  'image/webp',
-  'application/pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/msword',
-];
-
 const fileFilter = (req, file, cb) => {
-  if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+  const mime = (file.mimetype || '').toLowerCase();
+  const ext = (file.originalname || '').toLowerCase();
+
+  const isImage = mime.startsWith('image/') || ext.match(/\.(jpg|jpeg|png|webp|heic|heif|bmp|tiff)$/i);
+  const isPdf = mime.includes('pdf') || ext.endsWith('.pdf');
+  const isDoc = mime.includes('word') || mime.includes('officedocument') || ext.match(/\.(doc|docx)$/i);
+
+  if (isImage || isPdf || isDoc || mime === 'application/octet-stream') {
     cb(null, true);
   } else {
-    const error = new Error('Unsupported file format. Please upload a JPEG, PNG, WEBP, PDF, or Word document.');
+    const error = new Error('Unsupported file format. Please upload a valid image, PDF, or Word document.');
     error.statusCode = 400;
     cb(error, false);
   }
