@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Sparkles, FolderLock, ArrowRight, Upload } from 'lucide-react';
+import { Search, Sparkles, FolderLock, ArrowRight, Upload, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { ROUTES } from '../utils/constants';
