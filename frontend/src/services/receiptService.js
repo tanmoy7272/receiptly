@@ -53,7 +53,7 @@ export const receiptService = {
 
   extractFileWithAI: async (fileFormData, customSignal) => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => controller.abort(), 45000);
 
     try {
       const response = await apiClient('/ai/extract-file', {
