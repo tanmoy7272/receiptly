@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { ArrowRight, Loader2, Lock, Mail, User } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -12,8 +12,12 @@ import { preloadDashboard } from '../App';
 export const Register = () => {
   useDocumentTitle('Create Account');
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, isAuthenticated } = useAuth();
   const toast = useToast();
+
+  if (isAuthenticated) {
+    return <Navigate to={ROUTES.DASHBOARD} replace />;
+  }
 
   const [formData, setFormData] = useState({
     name: '',

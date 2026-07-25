@@ -1,13 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Sparkles, FolderLock, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Search, Sparkles, FolderLock, ArrowRight, Upload } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { ROUTES } from '../utils/constants';
+import { useAuth } from '../context/AuthContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export const Landing = () => {
   useDocumentTitle('Store every receipt. Find it in seconds.');
+  const { isAuthenticated } = useAuth();
 
   const supportedReceipts = [
     'Amazon Purchases', 'Swiggy & Zomato Bills', 'Blinkit Groceries', 'Flipkart Orders', 
@@ -34,16 +36,33 @@ export const Landing = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <Link to={ROUTES.REGISTER}>
-              <Button size="lg" variant="primary" className="w-full sm:w-auto gap-2">
-                Create Free Account <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link to={ROUTES.LOGIN}>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Sign In to Vault
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link to={ROUTES.DASHBOARD}>
+                  <Button size="lg" variant="primary" className="w-full sm:w-auto gap-2">
+                    Go to Dashboard <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link to={ROUTES.RECEIPT_NEW}>
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2">
+                    <Upload className="h-4 w-4 text-slate-600" /> Upload Receipt
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to={ROUTES.REGISTER}>
+                  <Button size="lg" variant="primary" className="w-full sm:w-auto gap-2">
+                    Create Free Account <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link to={ROUTES.LOGIN}>
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                    Sign In to Vault
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
