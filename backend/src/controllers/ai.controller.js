@@ -50,7 +50,7 @@ export const handleExtractFileAI = async (req, res, next) => {
     const timeoutPromise = new Promise((resolve) => {
       timerId = setTimeout(() => {
         resolve(null);
-      }, 25000);
+      }, 35000);
     });
 
     // Safe Cloudinary Uploader (Guarantees AI Extraction never fails if Cloudinary API encounters a network issue)
