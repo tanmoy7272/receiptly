@@ -92,10 +92,6 @@ npx prisma db seed
 npm run dev
 ```
 
-> **Demo Login Credentials:**  
-> Email: `demo@receiptly.app`  
-> Password: `Password123!`
-
 ### 4. Frontend Setup
 ```bash
 cd ../frontend
@@ -122,6 +118,7 @@ cd frontend && npm test
 ## 📖 Technical Documentation
 
 - 🚀 [100% Free Production Deployment Guide](docs/FREE_DEPLOYMENT_GUIDE.md)
+- 🗄️ [Database Schema & Production SQL Query Guide](docs/DATABASE_AND_SQL_GUIDE.md)
 - 📑 [API Reference](docs/API.md)
 - 🏗️ [System Architecture & Data Flow](docs/ARCHITECTURE.md)
 - 🚀 [Production Deployment Guide](docs/DEPLOYMENT.md)

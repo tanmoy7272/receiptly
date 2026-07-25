@@ -4,6 +4,7 @@ import {
   Plus,
   UploadCloud,
   ArrowRight,
+  ArrowUpRight,
   TrendingUp,
   Receipt as ReceiptIcon,
   Wallet,
@@ -204,43 +205,69 @@ export const Dashboard = () => {
             onCancel={() => setDeleteReceiptId(null)}
           />
 
-          {/* Overview Cards Row - 2x2 Grid on Mobile, 4-Cols on Desktop */}
+          {/* Overview Cards Row - Interactive Navigation Shortcuts (2x2 Grid on Mobile, 4-Cols on Desktop) */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-            <Card className="p-5">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Total Receipts</span>
-                <ReceiptIcon className="h-4 w-4 text-slate-400" />
-              </div>
-              <p className="text-2xl font-bold text-slate-900">{overview.totalReceipts}</p>
-              <p className="text-xs text-slate-500 mt-1">Saved in your vault</p>
-            </Card>
+            <Link to={ROUTES.RECEIPTS} className="block group">
+              <Card className="p-4 sm:p-5 h-full hover:border-slate-400 hover:shadow-md transition-all cursor-pointer">
+                <div className="flex items-center justify-between text-slate-500 mb-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider group-hover:text-slate-900 transition-colors">Total Receipts</span>
+                  <div className="flex items-center gap-1">
+                    <ReceiptIcon className="h-4 w-4 text-slate-400 group-hover:text-slate-700 transition-colors" />
+                    <ArrowUpRight className="h-3.5 w-3.5 text-slate-300 group-hover:text-slate-900 transition-colors" />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-slate-900">{overview.totalReceipts}</p>
+                <p className="text-xs text-slate-500 mt-1 group-hover:text-slate-700 transition-colors">View all in vault →</p>
+              </Card>
+            </Link>
 
-            <Card className="p-5">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Total Spent</span>
-                <Wallet className="h-4 w-4 text-slate-400" />
-              </div>
-              <p className="text-2xl font-bold text-slate-900">{formatCurrency(overview.totalSpent)}</p>
-              <p className="text-xs text-slate-500 mt-1">All-time tracked spend</p>
-            </Card>
+            <Link to={`${ROUTES.RECEIPTS}?sortBy=amount_desc`} className="block group">
+              <Card className="p-4 sm:p-5 h-full hover:border-slate-400 hover:shadow-md transition-all cursor-pointer">
+                <div className="flex items-center justify-between text-slate-500 mb-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider group-hover:text-slate-900 transition-colors">Total Spent</span>
+                  <div className="flex items-center gap-1">
+                    <Wallet className="h-4 w-4 text-slate-400 group-hover:text-slate-700 transition-colors" />
+                    <ArrowUpRight className="h-3.5 w-3.5 text-slate-300 group-hover:text-slate-900 transition-colors" />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-slate-900">{formatCurrency(overview.totalSpent)}</p>
+                <p className="text-xs text-slate-500 mt-1 group-hover:text-slate-700 transition-colors">All-time tracked spend</p>
+              </Card>
+            </Link>
 
-            <Card className="p-5">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Average Spend</span>
-                <TrendingUp className="h-4 w-4 text-slate-400" />
-              </div>
-              <p className="text-2xl font-bold text-slate-900">{formatCurrency(overview.averageSpend)}</p>
-              <p className="text-xs text-slate-500 mt-1">Per receipt average</p>
-            </Card>
+            <Link to={`${ROUTES.RECEIPTS}?sortBy=amount_desc`} className="block group">
+              <Card className="p-4 sm:p-5 h-full hover:border-slate-400 hover:shadow-md transition-all cursor-pointer">
+                <div className="flex items-center justify-between text-slate-500 mb-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider group-hover:text-slate-900 transition-colors">Average Spend</span>
+                  <div className="flex items-center gap-1">
+                    <TrendingUp className="h-4 w-4 text-slate-400 group-hover:text-slate-700 transition-colors" />
+                    <ArrowUpRight className="h-3.5 w-3.5 text-slate-300 group-hover:text-slate-900 transition-colors" />
+                  </div>
+                </div>
+                <p className="text-2xl font-bold text-slate-900">{formatCurrency(overview.averageSpend)}</p>
+                <p className="text-xs text-slate-500 mt-1 group-hover:text-slate-700 transition-colors">Per receipt average</p>
+              </Card>
+            </Link>
 
-            <Card className="p-5">
-              <div className="flex items-center justify-between text-slate-500 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">This Month</span>
-                <Calendar className="h-4 w-4 text-slate-400" />
-              </div>
-              <p className="text-2xl font-bold text-slate-900">{formatCurrency(overview.thisMonthSpent)}</p>
-              <p className="text-xs text-slate-500 mt-1">{overview.thisMonthReceipts} receipt(s) this month</p>
-            </Card>
+            {(() => {
+              const now = new Date();
+              const startOfMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+              return (
+                <Link to={`${ROUTES.RECEIPTS}?fromDate=${startOfMonthStr}`} className="block group">
+                  <Card className="p-4 sm:p-5 h-full hover:border-slate-400 hover:shadow-md transition-all cursor-pointer">
+                    <div className="flex items-center justify-between text-slate-500 mb-2">
+                      <span className="text-xs font-semibold uppercase tracking-wider group-hover:text-slate-900 transition-colors">This Month</span>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4 text-slate-400 group-hover:text-slate-700 transition-colors" />
+                        <ArrowUpRight className="h-3.5 w-3.5 text-slate-300 group-hover:text-slate-900 transition-colors" />
+                      </div>
+                    </div>
+                    <p className="text-2xl font-bold text-slate-900">{formatCurrency(overview.thisMonthSpent)}</p>
+                    <p className="text-xs text-slate-500 mt-1 group-hover:text-slate-700 transition-colors">{overview.thisMonthReceipts} receipt(s) this month →</p>
+                  </Card>
+                </Link>
+              );
+            })()}
           </div>
 
           {/* Rolling 6-Month Chart & Category Breakdown */}
