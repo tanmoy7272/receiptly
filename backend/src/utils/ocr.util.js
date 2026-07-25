@@ -26,6 +26,9 @@ export const performLocalOCR = async (imageBuffer) => {
       return null;
     }
     worker = await createWorker('eng');
+    await worker.setParameters({
+      tessedit_pageseg_mode: '11',
+    });
     const { data: { text } } = await worker.recognize(imageBuffer);
     return text?.trim() || null;
   } catch (err) {
