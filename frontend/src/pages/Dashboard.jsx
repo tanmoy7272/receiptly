@@ -270,26 +270,42 @@ export const Dashboard = () => {
                 {categoryBreakdown.length === 0 ? (
                   <p className="text-xs text-slate-500 italic text-center py-8">No categories found</p>
                 ) : (
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-slate-200 text-slate-500 uppercase font-semibold">
-                        <th className="py-2">Category</th>
-                        <th className="py-2 text-center">Count</th>
-                        <th className="py-2 text-right">Total Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
-                      {categoryBreakdown.map((cat) => (
-                        <tr key={cat.category} className="hover:bg-slate-50">
-                          <td className="py-2.5 font-semibold text-slate-900">{cat.category}</td>
-                          <td className="py-2.5 text-center text-slate-500">{cat.receiptCount}</td>
-                          <td className="py-2.5 text-right font-bold text-slate-900">
-                            {formatCurrency(cat.totalAmount)}
-                          </td>
+                  <>
+                    {/* Desktop Table View */}
+                    <table className="hidden sm:table w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-200 text-slate-500 uppercase font-semibold">
+                          <th className="py-2">Category</th>
+                          <th className="py-2 text-center">Count</th>
+                          <th className="py-2 text-right">Total Amount</th>
                         </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+                        {categoryBreakdown.map((cat) => (
+                          <tr key={cat.category} className="hover:bg-slate-50">
+                            <td className="py-2.5 font-semibold text-slate-900">{cat.category}</td>
+                            <td className="py-2.5 text-center text-slate-500">{cat.receiptCount}</td>
+                            <td className="py-2.5 text-right font-bold text-slate-900">
+                              {formatCurrency(cat.totalAmount)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    {/* Mobile Cards View */}
+                    <div className="block sm:hidden space-y-2.5">
+                      {categoryBreakdown.map((cat) => (
+                        <div key={cat.category} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                          <div>
+                            <p className="text-xs font-bold text-slate-900">{cat.category}</p>
+                            <p className="text-[11px] text-slate-500">{cat.receiptCount} receipt(s)</p>
+                          </div>
+                          <p className="text-xs font-bold text-slate-900">{formatCurrency(cat.totalAmount)}</p>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
+                    </div>
+                  </>
                 )}
               </div>
             </Card>

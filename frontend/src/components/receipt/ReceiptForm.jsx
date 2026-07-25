@@ -248,6 +248,7 @@ export const ReceiptForm = ({
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             placeholder="e.g. Samsung 55 Inch TV"
+            className="text-base sm:text-sm min-h-[44px]"
             required
             disabled={loading || aiParsing}
           />
@@ -260,6 +261,7 @@ export const ReceiptForm = ({
             value={formData.merchant}
             onChange={(e) => setFormData({ ...formData, merchant: e.target.value })}
             placeholder="e.g. Croma, Reliance Digital, Flipkart"
+            className="text-base sm:text-sm min-h-[44px]"
             required
             disabled={loading || aiParsing}
           />
@@ -274,9 +276,11 @@ export const ReceiptForm = ({
             type="number"
             step="0.01"
             min="0"
+            inputMode="decimal"
             value={formData.amount}
             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
             placeholder="0.00"
+            className="text-base sm:text-sm min-h-[44px]"
             required
             disabled={loading || aiParsing}
           />
