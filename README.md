@@ -15,10 +15,10 @@ Receiptly is a full-stack, single-tenant SaaS application built with **React (Vi
 
 ## ✨ Core Features
 
-- **🔒 Secure Authentication:** Cross-site HTTP-Only JWT cookies with `SameSite=None`, `Secure=true`, bcrypt password hashing, and automatic 401 session expiry handling.
+- **🔒 Secure Authentication & Recovery:** Cross-site HTTP-Only JWT cookies with configurable `SameSite` options, bcrypt password hashing, 6-digit email OTP verification via Brevo REST API, self-service password resets, and automatic 401 session expiry handling.
 - **📄 Universal Document Support:** Upload images (JPEG, PNG, WebP), digital PDFs, scanned PDFs, or Word documents (`.docx`). Inline image previews & full asset deletion via Cloudinary.
-- **🤖 AI-Assisted OCR Pipeline:** Groq SDK (`llama-3.3-70b-versatile`) extracts title, vendor, amount, purchase date, invoice number, and category. Operates strictly read-only with non-blocking 10-second fail-safe timeouts.
-- **🔍 Smart Search & Discovery:** Debounced text query search across title, merchant, notes, and invoice numbers. Dynamic filtering by category, currency, date range, and amount bounds.
+- **🤖 AI-Assisted OCR Pipeline:** Groq SDK (`llama-3.3-70b-versatile`) + Tesseract.js WASM worker pool extracts title, vendor, amount, purchase date, invoice number, and category with lazy worker reuse for high performance.
+- **🔍 Smart Search & Discovery:** Debounced text query search across title, merchant, notes, and invoice numbers with composite database indexes (`userId` + `purchaseDate`). Dynamic filtering by category, currency, date range, and amount bounds.
 - **📊 Analytics Dashboard:** Overview spending statistic cards, category spend breakdown (with mobile-responsive cards), and rolling 6-month spending trend line charts via Chart.js.
 - **🛡️ Warranty Lifecycle Tracking:** Data-driven warranty coverage tracking with remaining days calculation and static status badges (`Active`, `Expiring Soon`, `Expired`).
 - **📱 Mobile Responsive & Accessible:** Scoped 44px tap targets, iOS Safari focus zoom prevention (`text-base sm:text-sm`), native OS file/camera pickers, and `safe-area-inset` support for iPhone notches.
