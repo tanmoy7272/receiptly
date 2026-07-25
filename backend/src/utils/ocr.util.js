@@ -32,7 +32,9 @@ export const performLocalOCR = async (imageBuffer) => {
       bufferToProcess = await sharp(imageBuffer)
         .rotate() // Auto-orient smartphone EXIF camera photos right-side up
         .resize({ width: 1200, withoutEnlargement: true })
-        .grayscale()
+        .grayscale() // Remove background color noise & shadows
+        .normalize() // Stretch contrast: dark text on bright white background for dim/unclear receipts
+        .sharpen() // Sharpen blurry character edges for maximum OCR clarity
         .toFormat('jpeg') // Normalize HEIC/PNG/WebP/BMP to JPEG for 100% OCR engine compatibility
         .toBuffer();
     } catch (sharpErr) {
