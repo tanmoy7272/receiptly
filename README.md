@@ -115,10 +115,11 @@ cd frontend && npm test
 
 ## Documentation
 
-For technical details, see:
+For technical details and deployment guides, see:
+- [🚀 100% Free Deployment Guide](docs/FREE_DEPLOYMENT_GUIDE.md)
 - [API Reference](docs/API.md)
 - [System Architecture](docs/ARCHITECTURE.md)
-- [Deployment Guide](docs/DEPLOYMENT.md)
+- [Production Deployment Guide](docs/DEPLOYMENT.md)
 - [OCR & Text Extraction Guide](docs/OCR.md)
 - [Changelog](CHANGELOG.md)
 
