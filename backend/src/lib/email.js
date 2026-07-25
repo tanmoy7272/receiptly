@@ -14,6 +14,9 @@ const transporter = nodemailer.createTransport({
     user: config.smtpUser,
     pass: config.smtpPass,
   },
+  connectionTimeout: 10000, // 10s connection timeout
+  greetingTimeout: 10000,   // 10s greeting timeout
+  socketTimeout: 15000,     // 15s socket activity timeout
 });
 
 /**

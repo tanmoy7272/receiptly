@@ -59,12 +59,10 @@ export const registerUser = async ({ name, email, password }) => {
     },
   });
 
-  // Send verification email (non-blocking — user is created even if email fails)
-  try {
-    await sendOtpEmail(normalizedEmail, otp, 'EMAIL_VERIFICATION');
-  } catch (err) {
+  // Send verification email asynchronously (non-blocking — user is created & response returns immediately)
+  sendOtpEmail(normalizedEmail, otp, 'EMAIL_VERIFICATION').catch((err) => {
     logger.error('Failed to send verification email during registration', err.message);
-  }
+  });
 
   return user;
 };
@@ -240,11 +238,10 @@ export const requestPasswordReset = async ({ email }) => {
     },
   });
 
-  try {
-    await sendOtpEmail(normalizedEmail, otp, 'PASSWORD_RESET');
-  } catch (err) {
+  // Send password reset email asynchronously (non-blocking — API responds immediately)
+  sendOtpEmail(normalizedEmail, otp, 'PASSWORD_RESET').catch((err) => {
     logger.error('Failed to send password reset email', err.message);
-  }
+  });
 };
 
 /**
@@ -363,9 +360,8 @@ export const resendOtp = async ({ email, purpose }) => {
     },
   });
 
-  try {
-    await sendOtpEmail(normalizedEmail, otp, purpose);
-  } catch (err) {
+  // Send resend OTP email asynchronously (non-blocking — API responds immediately)
+  sendOtpEmail(normalizedEmail, otp, purpose).catch((err) => {
     logger.error('Failed to resend OTP email', err.message);
-  }
+  });
 };
