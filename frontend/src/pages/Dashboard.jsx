@@ -49,7 +49,7 @@ ChartJS.register(
 
 export const Dashboard = () => {
   useDocumentTitle('Dashboard');
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const toast = useToast();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -168,9 +168,6 @@ export const Dashboard = () => {
               <Plus className="h-4 w-4" /> Upload Receipt
             </Button>
           </Link>
-          <Button variant="outline" onClick={logout} className="flex-1 sm:flex-initial justify-center">
-            Sign Out
-          </Button>
         </div>
       </div>
 
