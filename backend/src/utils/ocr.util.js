@@ -1,6 +1,7 @@
 import { PDFParse } from 'pdf-parse';
 import { createWorker } from 'tesseract.js';
 import mammoth from 'mammoth';
+import sharp from 'sharp';
 import { logger } from './logger.js';
 
 export const inspectPdfBuffer = async (buffer) => {
@@ -25,11 +26,22 @@ export const performLocalOCR = async (imageBuffer) => {
     if (!imageBuffer || !Buffer.isBuffer(imageBuffer) || imageBuffer.length < 100) {
       return null;
     }
+
+    let bufferToProcess = imageBuffer;
+    try {
+      bufferToProcess = await sharp(imageBuffer)
+        .resize({ width: 1200, withoutEnlargement: true })
+        .grayscale()
+        .toBuffer();
+    } catch (sharpErr) {
+      logger.warn('Sharp image preprocessing warning, using raw buffer:', sharpErr.message);
+    }
+
     worker = await createWorker('eng');
     await worker.setParameters({
       tessedit_pageseg_mode: '11',
     });
-    const { data: { text } } = await worker.recognize(imageBuffer);
+    const { data: { text } } = await worker.recognize(bufferToProcess);
     return text?.trim() || null;
   } catch (err) {
     logger.warn('Tesseract OCR image read warning:', err.message);
