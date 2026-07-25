@@ -125,6 +125,7 @@ export const ReceiptForm = ({
         warrantySource: 'NONE',
       });
       setAiExtractedSuccess(false);
+      toast.warning('Could not auto-extract details. Please enter purchase details below.');
     } finally {
       setAiParsing(false);
     }
