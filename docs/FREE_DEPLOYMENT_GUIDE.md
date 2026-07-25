@@ -58,7 +58,7 @@ A step-by-step guide to deploy Receiptly for **100% FREE** using modern, product
    - **Runtime:** `Node`
    - **Build Command:**
      ```bash
-     npm install && npx prisma generate && npx prisma migrate deploy
+     npm install && npx prisma generate && npx prisma db push
      ```
    - **Start Command:**
      ```bash
