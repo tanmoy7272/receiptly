@@ -114,10 +114,8 @@ const passwordResetEmailContent = (otp) => `
 // ---------------------------------------------------------------------------
 
 /**
- * Send an OTP email for either verification or password reset.
- * @param {string} to - Recipient email address
- * @param {string} otp - Plaintext OTP (hashed before storing, but sent as-is to user)
- * @param {'EMAIL_VERIFICATION'|'PASSWORD_RESET'} purpose
+ * Send an OTP email using Brevo HTTPS REST API (instant 200ms delivery),
+ * falling back to Nodemailer SMTP transporter if API fails.
  */
 export const sendOtpEmail = async (to, otp, purpose) => {
   const isVerification = purpose === 'EMAIL_VERIFICATION';
@@ -130,6 +128,40 @@ export const sendOtpEmail = async (to, otp, purpose) => {
     isVerification ? verificationEmailContent(otp) : passwordResetEmailContent(otp)
   );
 
+  // Parse sender email from config.smtpFrom (e.g. "Receiptly <noreply@domain.com>" or "email@domain.com")
+  const fromMatch = config.smtpFrom.match(/<([^>]+)>/) || [null, config.smtpFrom.trim()];
+  const senderEmail = fromMatch[1] || config.smtpFrom.trim();
+
+  // Try Brevo HTTPS REST API first for ultra-fast, firewall-proof delivery
+  if (config.smtpPass && (config.smtpPass.startsWith('xkeysib-') || config.smtpPass.startsWith('xsmtpsib-'))) {
+    try {
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'api-key': config.smtpPass,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          sender: { name: 'Receiptly', email: senderEmail },
+          to: [{ email: to }],
+          subject,
+          htmlContent: html,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok && data.messageId) {
+        logger.info(`OTP email delivered via Brevo API to ${to} (purpose: ${purpose}, messageId: ${data.messageId})`);
+        return data;
+      }
+      logger.warn(`Brevo API status ${response.status}: ${JSON.stringify(data)}. Falling back to Nodemailer SMTP...`);
+    } catch (apiErr) {
+      logger.warn(`Brevo API error: ${apiErr.message}. Falling back to Nodemailer SMTP...`);
+    }
+  }
+
+  // Fallback to standard Nodemailer SMTP transport
   try {
     const info = await transporter.sendMail({
       from: config.smtpFrom,
@@ -137,7 +169,7 @@ export const sendOtpEmail = async (to, otp, purpose) => {
       subject,
       html,
     });
-    logger.info(`OTP email sent to ${to} (purpose: ${purpose}, messageId: ${info.messageId})`);
+    logger.info(`OTP email sent via Nodemailer SMTP to ${to} (purpose: ${purpose}, messageId: ${info.messageId})`);
     return info;
   } catch (error) {
     logger.error(`Failed to send OTP email to ${to}`, error.stack || error.message);
@@ -149,19 +181,5 @@ export const sendOtpEmail = async (to, otp, purpose) => {
  * Send a test email (development only).
  */
 export const sendTestEmail = async (to) => {
-  const html = baseTemplate(`
-    <h2 style="margin:0 0 8px;font-size:18px;font-weight:700;color:#0f172a;">SMTP Test</h2>
-    <p style="margin:0;font-size:14px;color:#475569;line-height:1.5;">
-      If you are reading this, Receiptly SMTP integration is working correctly.
-    </p>
-  `);
-
-  const info = await transporter.sendMail({
-    from: config.smtpFrom,
-    to,
-    subject: 'Receiptly SMTP Test',
-    html,
-  });
-  logger.info(`Test email sent to ${to} (messageId: ${info.messageId})`);
-  return info;
+  return sendOtpEmail(to, '123456', 'EMAIL_VERIFICATION');
 };
