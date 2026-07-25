@@ -9,6 +9,7 @@ import { useToast } from '../context/ToastContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { authService } from '../services/authService';
 
+// Version 1.0.1 - Enforce server-side OTP verification before step transition
 export const ForgotPassword = () => {
   useDocumentTitle('Reset Password');
   const navigate = useNavigate();
