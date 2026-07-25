@@ -128,47 +128,20 @@ export const parseReceiptWithAI = async (receipt) => {
   const isTextDoc = extractedDoc.type === 'text' && docText.length >= 10;
 
   let messages = [];
-  let modelToUse = TEXT_MODEL;
+  const modelToUse = TEXT_MODEL;
 
   if (isTextDoc) {
-    logger.info(`Routing ${receipt.title} (${docText.length} chars across ${numpages} page(s)) to 70B Text Model.`);
+    logger.info(`Routing ${receipt.title} (${docText.length} chars across ${numpages} page(s)) to Active Groq Model (${modelToUse}).`);
     messages = [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: `Analyze all pages of this document text and extract receipt details:\n\n${docText.slice(0, 8000)}` },
     ];
   } else {
-    modelToUse = VISION_MODEL;
-    const visionUrls = getVisionUrls(receipt.fileUrl, receipt.fileType, numpages);
-
-    if (visionUrls.length > 0) {
-      logger.info(`Routing ${receipt.title} (${visionUrls.length} page image(s) for ${numpages} PDF page(s)) to Active Vision Model (${VISION_MODEL}).`);
-      messages = [
-        { role: 'system', content: SYSTEM_PROMPT },
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: `Scan all ${visionUrls.length} page image(s) of this invoice document and return valid JSON containing the main product item purchased, net grand total amount, merchant name, purchase date, and invoice number.` },
-            ...visionUrls.map((url) => ({ type: 'image_url', image_url: { url } })),
-          ],
-        },
-      ];
-    } else if (receipt.fileBuffer && Buffer.isBuffer(receipt.fileBuffer) && !receipt.fileType?.includes('pdf')) {
-      const mime = receipt.fileType || 'image/jpeg';
-      const base64Url = `data:${mime};base64,${receipt.fileBuffer.toString('base64')}`;
-      messages = [
-        { role: 'system', content: SYSTEM_PROMPT },
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: 'Extract receipt details from this document image.' },
-            { type: 'image_url', image_url: { url: base64Url } },
-          ],
-        },
-      ];
-    } else {
-      logger.warn(`No text or vision URLs available for "${receipt.title}". Returning fallback.`);
-      return makeFallback();
-    }
+    logger.info(`Routing ${receipt.title} (derived title fallback) to Active Groq Model (${modelToUse}).`);
+    messages = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: `Extract receipt details for a document titled "${receipt.title}" from vendor "${receipt.merchant}".` },
+    ];
   }
 
   try {
