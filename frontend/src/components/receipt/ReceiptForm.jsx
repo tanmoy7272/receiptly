@@ -84,7 +84,10 @@ export const ReceiptForm = ({
       const aiMerchant = cleanFieldValue(extracted.merchant?.value);
       const cleanTitle = aiTitle || aiMerchant || derivedTitle;
       const cleanMerchant = aiMerchant || aiTitle || derivedTitle;
-      const formattedDate = formatDateString(extracted.purchaseDate?.value);
+      const parsedAiDate = extracted.purchaseDate?.value && !isNaN(Date.parse(extracted.purchaseDate.value))
+        ? extracted.purchaseDate.value
+        : null;
+      const formattedDate = parsedAiDate ? formatDateString(parsedAiDate) : '';
 
       setFormData({
         title: cleanTitle,

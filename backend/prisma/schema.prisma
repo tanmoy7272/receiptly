@@ -57,6 +57,8 @@ model Receipt {
   warrantySource     String    @default("NONE") // EXPLICIT_DATE, DURATION, MANUAL, USER_EDITED, NONE
 
   @@index([userId])
+  @@index([userId, purchaseDate])
+  @@index([userId, createdAt])
   @@index([merchantNormalized])
   @@index([category])
   @@index([purchaseDate])

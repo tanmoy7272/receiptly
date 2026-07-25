@@ -18,6 +18,7 @@ export const config = {
   smtpPass: process.env.SMTP_PASS,
   brevoApiKey: process.env.BREVO_API_KEY || process.env.SMTP_PASS,
   smtpFrom: process.env.SMTP_FROM || 'Receiptly <noreply@receiptly.app>',
+  cookieSameSite: process.env.COOKIE_SAME_SITE || (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
 };
 
 export const validateEnv = () => {

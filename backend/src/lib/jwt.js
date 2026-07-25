@@ -6,7 +6,7 @@ export const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 export const getCookieOptions = () => ({
   httpOnly: true,
-  sameSite: config.nodeEnv === 'production' ? 'none' : 'lax',
+  sameSite: config.cookieSameSite,
   secure: config.nodeEnv === 'production',
   maxAge: SEVEN_DAYS_MS,
   path: '/',

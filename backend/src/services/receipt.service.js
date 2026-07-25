@@ -267,12 +267,15 @@ export const updateReceipt = async (userId, receiptId, data, file) => {
 export const deleteReceipt = async (userId, receiptId) => {
   const existingReceipt = await getReceiptById(userId, receiptId);
 
-  await Promise.all([
-    existingReceipt.filePublicId
-      ? deleteFromCloudinary(existingReceipt.filePublicId, existingReceipt.fileType)
-      : Promise.resolve(),
-    prisma.receipt.delete({ where: { id: receiptId } }),
-  ]);
+  // 1. Delete database record first to maintain data consistency
+  await prisma.receipt.delete({ where: { id: receiptId } });
+
+  // 2. Clean up remote Cloudinary file asynchronously after DB deletion succeeds
+  if (existingReceipt.filePublicId) {
+    deleteFromCloudinary(existingReceipt.filePublicId, existingReceipt.fileType).catch((err) => {
+      // Log warning if Cloudinary fails, but database is already safely updated
+    });
+  }
 
   return true;
 };

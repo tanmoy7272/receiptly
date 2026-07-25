@@ -20,8 +20,26 @@ export const inspectPdfBuffer = async (buffer) => {
   }
 };
 
+let workerPromise = null;
+
+const getOcrWorker = async () => {
+  if (!workerPromise) {
+    workerPromise = (async () => {
+      const worker = await createWorker('eng');
+      await worker.setParameters({
+        tessedit_pageseg_mode: '3',
+        tessedit_enable_dict_correction: '0',
+      });
+      return worker;
+    })().catch((err) => {
+      workerPromise = null;
+      throw err;
+    });
+  }
+  return workerPromise;
+};
+
 export const performLocalOCR = async (imageBuffer) => {
-  let worker = null;
   try {
     if (!imageBuffer || !Buffer.isBuffer(imageBuffer) || imageBuffer.length < 100) {
       return null;
@@ -41,24 +59,13 @@ export const performLocalOCR = async (imageBuffer) => {
       logger.warn('Sharp image preprocessing warning, using raw buffer:', sharpErr.message);
     }
 
-    worker = await createWorker('eng');
-    await worker.setParameters({
-      tessedit_pageseg_mode: '3', // PSM_AUTO: Automatic page segmentation for fast robust text recognition
-      tessedit_enable_dict_correction: '0', // Disables dictionary lookups for 3x faster character recognition speed
-    });
+    const worker = await getOcrWorker();
     const { data: { text } } = await worker.recognize(bufferToProcess);
     return text?.trim() || null;
   } catch (err) {
     logger.warn('Tesseract OCR image read warning:', err.message);
+    workerPromise = null; // Reset worker promise on failure so next attempt re-initializes cleanly
     return null;
-  } finally {
-    if (worker) {
-      try {
-        await worker.terminate();
-      } catch (err) {
-        logger.warn('Tesseract worker termination warning:', err.message);
-      }
-    }
   }
 };
 
