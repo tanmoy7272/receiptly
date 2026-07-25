@@ -22,6 +22,9 @@ export const AuthProvider = ({ children }) => {
   const toast = useToast();
 
   const clearUserSession = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('receiptly_token');
+    }
     setUser(null);
     setIsAuthenticated(false);
   };
@@ -59,6 +62,9 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     const data = await authService.login(credentials);
     if (data?.user) {
+      if (data.token) {
+        localStorage.setItem('receiptly_token', data.token);
+      }
       setUser(data.user);
       setIsAuthenticated(true);
     }
@@ -68,6 +74,9 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     const data = await authService.register(userData);
     if (data?.user) {
+      if (data.token) {
+        localStorage.setItem('receiptly_token', data.token);
+      }
       setUser(data.user);
       setIsAuthenticated(true);
     }

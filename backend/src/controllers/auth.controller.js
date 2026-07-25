@@ -11,6 +11,7 @@ export const register = async (req, res, next) => {
 
     return res.status(201).json({
       message: AUTH_MESSAGES.REGISTER_SUCCESS,
+      token,
       user,
     });
   } catch (error) {
@@ -27,6 +28,7 @@ export const login = async (req, res, next) => {
 
     return res.status(200).json({
       message: AUTH_MESSAGES.LOGIN_SUCCESS,
+      token,
       user,
     });
   } catch (error) {

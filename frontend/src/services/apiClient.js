@@ -36,6 +36,11 @@ export const apiClient = async (endpoint, options = {}) => {
     defaultHeaders['Content-Type'] = 'application/json';
   }
 
+  const storedToken = typeof window !== 'undefined' ? localStorage.getItem('receiptly_token') : null;
+  if (storedToken) {
+    defaultHeaders['Authorization'] = `Bearer ${storedToken}`;
+  }
+
   const config = {
     ...options,
     headers: {
