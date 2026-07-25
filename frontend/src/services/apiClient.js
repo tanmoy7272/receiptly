@@ -8,7 +8,8 @@
  * Architecture Flow: Service Layer -> apiClient -> native fetch -> Backend API
  * ============================================================================
  */
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+const PRODUCTION_API_URL = 'https://receiptly-8amx.onrender.com/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || PRODUCTION_API_URL;
 
 let onUnauthorizedCallback = null;
 
