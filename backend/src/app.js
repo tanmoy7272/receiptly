@@ -96,6 +96,7 @@ app.use('/api/v1/auth/login', authRateLimiter);
 app.use('/api/v1/auth/register', authRateLimiter);
 app.use('/api/v1/auth/verify-email', otpRateLimiter);
 app.use('/api/v1/auth/forgot-password', otpRateLimiter);
+app.use('/api/v1/auth/verify-reset-otp', otpRateLimiter);
 app.use('/api/v1/auth/reset-password', otpRateLimiter);
 app.use('/api/v1/auth/resend-otp', otpRateLimiter);
 app.use('/api/v1/receipts/:id/extract', aiRateLimiter);

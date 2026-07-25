@@ -62,6 +62,7 @@ export const apiClient = async (endpoint, options = {}) => {
           endpoint.includes('/auth/me') ||
           endpoint.includes('/auth/verify-email') ||
           endpoint.includes('/auth/forgot-password') ||
+          endpoint.includes('/auth/verify-reset-otp') ||
           endpoint.includes('/auth/reset-password') ||
           endpoint.includes('/auth/resend-otp');
         if (!isAuthRoute && onUnauthorizedCallback) {

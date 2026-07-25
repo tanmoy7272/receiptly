@@ -243,6 +243,54 @@ export const verifyEmailOtp = async ({ email, otp }) => {
 // ---------------------------------------------------------------------------
 
 /**
+ * Verify password reset OTP (Step 2 of reset flow).
+ * Checks validity, expiry, and attempt limits without consuming/deleting the OTP.
+ */
+export const verifyResetOtp = async ({ email, otp }) => {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const user = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+  });
+
+  if (!user || user.otpPurpose !== 'PASSWORD_RESET' || !user.otpHash || !user.otpExpiry) {
+    const error = new Error(ERROR_MESSAGES.INVALID_OTP);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (new Date() > user.otpExpiry) {
+    const error = new Error(ERROR_MESSAGES.OTP_EXPIRED);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (user.otpAttempts >= OTP_MAX_ATTEMPTS) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { otpHash: null, otpExpiry: null, otpPurpose: null, otpAttempts: 0 },
+    });
+    const error = new Error(ERROR_MESSAGES.OTP_MAX_ATTEMPTS);
+    error.statusCode = 429;
+    throw error;
+  }
+
+  const isValid = await verifyOtp(otp, user.otpHash);
+
+  if (!isValid) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { otpAttempts: { increment: 1 } },
+    });
+    const error = new Error(ERROR_MESSAGES.INVALID_OTP);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return true;
+};
+
+/**
  * Initiate password reset by generating an OTP and emailing it.
  * Always returns success to prevent email enumeration attacks.
  */

@@ -103,10 +103,21 @@ export const ForgotPassword = () => {
       return;
     }
 
-    // Move to reset step with the verified OTP
-    // The actual OTP verification happens server-side during password reset
-    setStep('reset');
-    setError('');
+    try {
+      setLoading(true);
+      setError('');
+      await authService.verifyResetOtp({ email, otp: code });
+      setStep('reset');
+      toast.success('Verification code confirmed. Set your new password.');
+    } catch (err) {
+      const errMsg = err?.message || 'Invalid verification code. Please try again.';
+      setError(errMsg);
+      toast.error(errMsg);
+      setOtp(['', '', '', '', '', '']);
+      otpRefs.current[0]?.focus();
+    } finally {
+      setLoading(false);
+    }
   };
 
   // --- Step 3: Reset password ---
@@ -286,10 +297,18 @@ export const ForgotPassword = () => {
             <Button
               type="submit"
               variant="primary"
-              disabled={otp.join('').length !== 6}
+              disabled={loading || otp.join('').length !== 6}
               className="w-full justify-center py-2.5 font-semibold text-sm gap-2"
             >
-              Continue <ArrowRight className="h-4 w-4" />
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Verifying code...
+                </>
+              ) : (
+                <>
+                  Continue <ArrowRight className="h-4 w-4" />
+                </>
+              )}
             </Button>
           </form>
 

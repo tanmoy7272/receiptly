@@ -6,6 +6,7 @@ import {
   getMe,
   verifyEmail,
   forgotPassword,
+  verifyResetOtp,
   resetPassword,
   resendOtp,
   testSmtp,
@@ -32,6 +33,7 @@ router.get('/me', requireAuth, getMe);
 // Email verification & password recovery
 router.post('/verify-email', validateRequest(verifyOtpSchema), verifyEmail);
 router.post('/forgot-password', validateRequest(forgotPasswordSchema), forgotPassword);
+router.post('/verify-reset-otp', validateRequest(verifyOtpSchema), verifyResetOtp);
 router.post('/reset-password', validateRequest(resetPasswordSchema), resetPassword);
 router.post('/resend-otp', validateRequest(resendOtpSchema), resendOtp);
 

@@ -5,6 +5,7 @@ import {
   requestPasswordReset,
   resetPassword as resetPasswordService,
   resendOtp as resendOtpService,
+  verifyResetOtp as verifyResetOtpService,
 } from '../services/auth.service.js';
 import { signToken, setAuthCookie, clearAuthCookie } from '../lib/jwt.js';
 import { AUTH_MESSAGES } from '../constants/messages.js';
@@ -89,6 +90,18 @@ export const forgotPassword = async (req, res, next) => {
     // Always return success to prevent email enumeration
     return res.status(200).json({
       message: AUTH_MESSAGES.PASSWORD_RESET_EMAIL_SENT,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyResetOtp = async (req, res, next) => {
+  try {
+    await verifyResetOtpService(req.body);
+
+    return res.status(200).json({
+      message: 'Verification code confirmed. Please set your new password.',
     });
   } catch (error) {
     next(error);

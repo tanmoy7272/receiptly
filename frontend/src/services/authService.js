@@ -35,6 +35,12 @@ export const authService = {
       body: JSON.stringify({ email }),
     }),
 
+  verifyResetOtp: ({ email, otp }) =>
+    apiClient('/auth/verify-reset-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, otp }),
+    }),
+
   resetPassword: ({ email, otp, newPassword }) =>
     apiClient('/auth/reset-password', {
       method: 'POST',
