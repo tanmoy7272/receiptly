@@ -31,15 +31,15 @@ RULES FOR EXTRACTION:
    - If an order contains multiple items or separate service/delivery invoices (e.g., Platform Fee, GT Charges, Delivery Charges), ignore auxiliary fee lines and select the primary highest-value physical product purchased across the document pages, or combine main product names if equal.
    - NEVER use customer billing/shipping street addresses (e.g. "Minworth", "Fleet Street", "London") as the product title.
    - NEVER name the receipt "Platform Fee", "GT Charges", "Delivery Charge", "Tax Invoice", or the store name.
-2. merchant: Official marketplace platform or primary vendor store name printed on the document (e.g. "Flipkart", "Amazon", "Swiggy", "Blinkit", "Reliance Digital", "Croma").
-   - If the document is from a marketplace (e.g. Flipkart), prefer the main platform name "Flipkart" over obscure third-party seller names.
+2. merchant: Primary vendor, restaurant, store, or marketplace platform name printed at the top of the document (e.g. "Byepass Dhaba", "Croma", "Amazon", "Flipkart").
+   - Extract the primary store, restaurant, or platform name printed on the receipt header.
 3. amount: Extract the FINAL NET GRAND TOTAL AMOUNT PAID as a plain numeric float.
    - For multi-page order bundles under a single Order ID where costs are itemized across pages (e.g. product price + platform fee + GT charges), calculate or extract the full net total paid for the entire order across all pages.
    - Do NOT select small individual delivery fee subtotals or tax components.
 4. currency: 3-letter currency code (default "INR").
-5. purchaseDate: Search specifically inside document headers for "Invoice Date", "Order Date", "Billing Date", "Date of Issue", or "Transaction Date". Format strictly as YYYY-MM-DD.
+5. purchaseDate: Search specifically inside document headers for "Invoice Date", "Order Date", "Billing Date", "Date", or "Transaction Date". Format strictly as YYYY-MM-DD. Parse thermal receipt dates formatted as DD/MM/YY or DD/MM/YYYY (e.g. "24/07/26" -> "2026-07-24").
 6. category: Exactly one of: [${RECEIPT_CATEGORIES.map((c) => `"${c}"`).join(', ')}].
-7. invoiceNumber: Primary Order ID (e.g. "OD438060927150219100"), Invoice Number, or Tax ID printed on the document.
+7. invoiceNumber: Primary Order ID (e.g. "OD438060927150219100"), Invoice Number, Bill No, or Tax ID printed on the document.
 8. warranty: Set warrantyMonths, warrantyExpiryDate, and warrantySource to NULL/NONE UNLESS warranty coverage is explicitly printed on the document.
 
 RETURN ONLY VALID JSON MATCHING THIS SCHEMA:
