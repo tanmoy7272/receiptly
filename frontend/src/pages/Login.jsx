@@ -100,14 +100,9 @@ export const Login = () => {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="password" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                Password
-              </label>
-              <Link to={ROUTES.FORGOT_PASSWORD} className="text-xs font-semibold text-slate-600 hover:text-slate-900 hover:underline">
-                Forgot password?
-              </Link>
-            </div>
+            <label htmlFor="password" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              Password
+            </label>
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
@@ -120,6 +115,11 @@ export const Login = () => {
                 onChange={handleChange}
                 className="w-full rounded-lg border border-slate-300 bg-white pl-10 pr-3.5 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
               />
+            </div>
+            <div className="mt-2 text-right">
+              <Link to={ROUTES.FORGOT_PASSWORD} className="text-xs font-semibold text-slate-600 hover:text-slate-900 hover:underline">
+                Forgot password?
+              </Link>
             </div>
           </div>
 
