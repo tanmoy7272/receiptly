@@ -128,7 +128,7 @@ export const Dashboard = () => {
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (context) => ` Spend: ₹${context.raw.toLocaleString('en-IN')}`,
+          label: (context) => ` Spend: ₹${(Number(context?.raw) || 0).toLocaleString('en-IN')}`,
         },
       },
     },
@@ -142,7 +142,7 @@ export const Dashboard = () => {
         ticks: {
           font: { size: 12 },
           color: '#64748b',
-          callback: (value) => `₹${value}`,
+          callback: (value) => `₹${Number(value) || 0}`,
         },
       },
     },
