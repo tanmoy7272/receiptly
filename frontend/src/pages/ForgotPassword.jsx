@@ -55,7 +55,7 @@ export const ForgotPassword = () => {
       await authService.forgotPassword({ email });
       setStep('otp');
       setResendCooldown(60);
-      toast.success('If an account exists, a reset code has been sent.');
+      toast.success('If an account is associated with this email address, a verification code has been sent.');
     } catch (err) {
       const errMsg = err?.message || 'Something went wrong. Please try again.';
       setError(errMsg);
@@ -260,8 +260,7 @@ export const ForgotPassword = () => {
             Enter verification code
           </h1>
           <p className="mt-2 text-sm text-slate-600">
-            We sent a 6-digit code to{' '}
-            <span className="font-semibold text-slate-900">{email}</span>
+            If an account is associated with <span className="font-semibold text-slate-900">{email}</span>, a 6-digit verification code has been sent.
           </p>
         </div>
 

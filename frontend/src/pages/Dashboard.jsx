@@ -157,9 +157,6 @@ export const Dashboard = () => {
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             Welcome back, {user?.name || 'Account Owner'}
           </h1>
-          <p className="text-sm text-slate-600">
-            Account: <span className="font-medium text-slate-900">{user?.email}</span>
-          </p>
         </div>
 
         <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
