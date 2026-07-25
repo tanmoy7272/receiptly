@@ -29,6 +29,13 @@ export const getClientOrigins = () => {
 
   if (!rawUrls) return defaultOrigins;
 
-  const parsed = rawUrls.split(',').map((url) => url.trim()).filter(Boolean);
-  return parsed.length > 0 ? Array.from(new Set([...defaultOrigins, ...parsed])) : defaultOrigins;
+  const parsed = rawUrls
+    .split(',')
+    .map((url) => url.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+
+  const originsSet = new Set([...defaultOrigins, ...parsed]);
+  parsed.forEach((url) => originsSet.add(`${url}/`));
+
+  return Array.from(originsSet);
 };
