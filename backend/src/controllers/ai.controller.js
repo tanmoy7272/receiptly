@@ -48,11 +48,11 @@ export const handleExtractFileAI = async (req, res, next) => {
       notes: '',
     };
 
-    // 10-Second Upstream AI Timeout Fallback
+    // 25-Second Upstream AI Timeout Fallback (Allows Render CPU to complete WASM OCR on large camera photos)
     const timeoutPromise = new Promise((resolve) => {
       timerId = setTimeout(() => {
         resolve(null);
-      }, 10000);
+      }, 25000);
     });
 
     const extractionResult = await Promise.race([
