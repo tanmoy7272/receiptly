@@ -56,7 +56,10 @@ export const apiClient = async (endpoint, options = {}) => {
 
     if (!response.ok) {
       if (response.status === 401) {
-        const isAuthRoute = endpoint.includes('/auth/login') || endpoint.includes('/auth/register');
+        const isAuthRoute =
+          endpoint.includes('/auth/login') ||
+          endpoint.includes('/auth/register') ||
+          endpoint.includes('/auth/me');
         if (!isAuthRoute && onUnauthorizedCallback) {
           onUnauthorizedCallback('Your session has expired. Please sign in again.');
         }
