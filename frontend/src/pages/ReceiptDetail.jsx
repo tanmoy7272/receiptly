@@ -297,17 +297,22 @@ export const ReceiptDetail = () => {
                     type="application/pdf"
                     className="w-full h-full min-h-[380px] rounded-lg"
                   >
-                    <div className="flex flex-col items-center justify-center p-6 text-center text-slate-500 h-full">
-                      <FileText className="mx-auto h-12 w-12 text-slate-400 mb-2" />
-                      <p className="text-xs font-semibold text-slate-700 mb-2">PDF Document Attached</p>
-                      <a
-                        href={receiptService.getReceiptFileUrl(id, 'view')}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs font-bold text-slate-900 underline"
-                      >
-                        Open PDF in New Tab
-                      </a>
+                    <div className="flex flex-col items-center justify-center p-2 h-full">
+                      <img
+                        src={receiptService.getReceiptFileUrl(id, 'view')}
+                        alt={receipt.title}
+                        className="h-full w-full object-contain max-h-[420px]"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          if (e.currentTarget.nextElementSibling) {
+                            e.currentTarget.nextElementSibling.style.display = 'block';
+                          }
+                        }}
+                      />
+                      <div style={{ display: 'none' }} className="text-center p-6 text-slate-400 space-y-2">
+                        <FileText className="mx-auto h-16 w-16 text-slate-300" />
+                        <p className="text-xs font-semibold text-slate-600">Document Attached</p>
+                      </div>
                     </div>
                   </object>
                 </div>

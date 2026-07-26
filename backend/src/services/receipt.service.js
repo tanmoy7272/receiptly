@@ -300,13 +300,13 @@ export const getReceiptFileStream = async (userId, receiptId, action = 'view') =
   const buffer = Buffer.from(arrayBuf);
 
   const cleanTitle = (receipt.title || 'receipt').replace(/[^a-zA-Z0-9_-]/g, '_');
-  const isPdf = receipt.fileType?.includes('pdf') || receipt.fileUrl?.endsWith('.pdf');
+  const isRealPdf = buffer.length >= 4 && buffer.toString('utf-8', 0, 4) === '%PDF';
   const isDoc = receipt.fileType?.includes('word') || receipt.fileType?.includes('officedocument') || Boolean(receipt.fileUrl?.match(/\.(doc|docx)$/i));
 
   let ext = 'jpg';
-  let mime = receipt.fileType || 'image/jpeg';
+  let mime = response.headers.get('content-type') || 'image/jpeg';
 
-  if (isPdf) {
+  if (isRealPdf) {
     ext = 'pdf';
     mime = 'application/pdf';
   } else if (isDoc) {
