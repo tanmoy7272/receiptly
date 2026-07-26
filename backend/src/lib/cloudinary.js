@@ -30,15 +30,16 @@ export const uploadToCloudinary = (fileBuffer, mimetype, folder = 'receiptly') =
       });
     }
 
+    const isPdf = mimetype?.includes('pdf');
+    const isDoc = mimetype?.includes('word') || mimetype?.includes('officedocument') || mimetype?.includes('msword');
+    const resourceType = (isPdf || isDoc) ? 'raw' : 'auto';
+
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: 'auto' },
+      { folder, resource_type: resourceType },
       (error, result) => {
         if (error) {
           logger.error('Cloudinary Upload Failed:', error.message);
           return reject(error);
-        }
-        if (mimetype?.includes('pdf') && result?.secure_url?.endsWith('.pdf')) {
-          result.secure_url = result.secure_url.replace(/\.pdf$/i, '.jpg');
         }
         return resolve(result);
       }
@@ -51,12 +52,15 @@ export const uploadToCloudinary = (fileBuffer, mimetype, folder = 'receiptly') =
 /**
  * Deletes asset from Cloudinary
  */
-export const deleteFromCloudinary = async (publicId) => {
+export const deleteFromCloudinary = async (publicId, mimetype) => {
   if (!isCloudinaryConfigured || !publicId || publicId.startsWith('mock_')) {
     return true;
   }
   try {
-    const result = await cloudinary.uploader.destroy(publicId);
+    const isPdf = mimetype?.includes('pdf');
+    const isDoc = mimetype?.includes('word') || mimetype?.includes('officedocument') || mimetype?.includes('msword');
+    const resourceType = (isPdf || isDoc) ? 'raw' : 'image';
+    const result = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
     return result.result === 'ok';
   } catch (error) {
     logger.error(`Cloudinary deletion failed for ${publicId}:`, error.message);
