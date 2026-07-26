@@ -24,6 +24,11 @@ export const getWarrantyBadge = (expiryDate) => {
 export const ReceiptCard = ({ receipt, onDelete }) => {
   const amountFormatted = formatINR(receipt.amount, receipt.currency);
 
+  const isPdf = receipt.fileType === 'application/pdf' || receipt.fileUrl?.endsWith('.pdf');
+  const previewUrl = isPdf && receipt.fileUrl?.includes('/upload/')
+    ? receipt.fileUrl.replace('/upload/', '/upload/f_jpg,pg_1/')
+    : receipt.fileUrl;
+
   const warrantyBadge = receipt.hasWarranty || receipt.warrantyExpiryDate
     ? getWarrantyBadge(receipt.warrantyExpiryDate)
     : null;
@@ -36,7 +41,7 @@ export const ReceiptCard = ({ receipt, onDelete }) => {
             <Link to={ROUTES.RECEIPT_DETAIL(receipt.id)} className="flex-shrink-0">
               {receipt.fileUrl ? (
                 <img
-                  src={receipt.fileUrl}
+                  src={previewUrl}
                   alt={receipt.title}
                   className="h-12 w-12 rounded-lg object-cover border border-slate-200 bg-slate-50 hover:opacity-90 transition-opacity"
                   onError={(e) => {

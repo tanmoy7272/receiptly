@@ -188,6 +188,9 @@ export const ReceiptDetail = () => {
   }
 
   const isPdf = receipt.fileType === 'application/pdf' || receipt.fileUrl?.endsWith('.pdf');
+  const previewUrl = isPdf && receipt.fileUrl?.includes('/upload/')
+    ? receipt.fileUrl.replace('/upload/', '/upload/f_jpg,pg_1/')
+    : receipt.fileUrl;
 
   const warrantyBadge = receipt.hasWarranty || receipt.warrantyExpiryDate
     ? getWarrantyBadge(receipt.warrantyExpiryDate)
@@ -286,7 +289,7 @@ export const ReceiptDetail = () => {
                   </div>
                 )}
                 <img
-                  src={receipt.fileUrl}
+                  src={previewUrl}
                   alt={receipt.title}
                   className="h-full w-full object-contain max-h-[420px]"
                   onError={(e) => {
