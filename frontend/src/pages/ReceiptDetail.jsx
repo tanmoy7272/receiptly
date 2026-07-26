@@ -188,9 +188,7 @@ export const ReceiptDetail = () => {
   }
 
   const isPdf = receipt.fileType === 'application/pdf' || receipt.fileUrl?.endsWith('.pdf');
-  const previewUrl = isPdf && receipt.fileUrl?.includes('/upload/')
-    ? receipt.fileUrl.replace('/upload/', '/upload/f_jpg,pg_1/')
-    : receipt.fileUrl;
+  const previewUrl = receipt.fileUrl;
 
   const warrantyBadge = receipt.hasWarranty || receipt.warrantyExpiryDate
     ? getWarrantyBadge(receipt.warrantyExpiryDate)

@@ -37,6 +37,9 @@ export const uploadToCloudinary = (fileBuffer, mimetype, folder = 'receiptly') =
           logger.error('Cloudinary Upload Failed:', error.message);
           return reject(error);
         }
+        if (mimetype?.includes('pdf') && result?.secure_url?.endsWith('.pdf')) {
+          result.secure_url = result.secure_url.replace(/\.pdf$/i, '.jpg');
+        }
         return resolve(result);
       }
     );
