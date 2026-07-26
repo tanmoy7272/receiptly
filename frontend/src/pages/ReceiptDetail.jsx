@@ -278,7 +278,9 @@ export const ReceiptDetail = () => {
                   Open Full Document <ExternalLink className="h-3.5 w-3.5" />
                 </a>
                 <a
-                  href={receipt.fileUrl}
+                  href={receipt.fileUrl?.includes('/upload/') ? receipt.fileUrl.replace('/upload/', '/upload/fl_attachment/') : receipt.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   download
                   className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-900 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200"
                 >
