@@ -15,6 +15,7 @@ import {
   XCircle,
   ShieldCheck,
   Hash,
+  Download,
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -267,41 +268,68 @@ export const ReceiptDetail = () => {
               Document Preview
             </span>
             {receipt.fileUrl && (
-              <a
-                href={receipt.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:underline"
-              >
-                Open Full Document <ExternalLink className="h-3.5 w-3.5" />
-              </a>
+              <div className="flex items-center gap-2">
+                <a
+                  href={receiptService.getReceiptFileUrl(id, 'view')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:underline"
+                >
+                  Open Full Document <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+                <a
+                  href={receiptService.getReceiptFileUrl(id, 'download')}
+                  download
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-900 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200"
+                >
+                  <Download className="h-3.5 w-3.5" /> Download
+                </a>
+              </div>
             )}
           </div>
 
-          <div className="relative min-h-[320px] flex-1 rounded-lg border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
+          <div className="relative min-h-[360px] flex-1 rounded-lg border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
             {receipt.fileUrl ? (
-              <div className="relative w-full h-full flex flex-col items-center justify-center p-2">
-                {isPdf && (
-                  <div className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded bg-red-100/90 backdrop-blur px-2.5 py-1 text-[11px] font-semibold text-red-700 border border-red-200 shadow-sm">
-                    <FileText className="h-3.5 w-3.5" /> PDF Invoice
-                  </div>
-                )}
-                <img
-                  src={previewUrl}
-                  alt={receipt.title}
-                  className="h-full w-full object-contain max-h-[420px]"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    if (e.currentTarget.nextElementSibling) {
-                      e.currentTarget.nextElementSibling.style.display = 'block';
-                    }
-                  }}
-                />
-                <div style={{ display: 'none' }} className="text-center p-6 text-slate-400 space-y-2">
-                  <FileText className="mx-auto h-16 w-16 text-slate-300" />
-                  <p className="text-xs font-semibold text-slate-600">Document Attached</p>
+              isPdf ? (
+                <div className="relative w-full h-full min-h-[380px]">
+                  <object
+                    data={receiptService.getReceiptFileUrl(id, 'view')}
+                    type="application/pdf"
+                    className="w-full h-full min-h-[380px] rounded-lg"
+                  >
+                    <div className="flex flex-col items-center justify-center p-6 text-center text-slate-500 h-full">
+                      <FileText className="mx-auto h-12 w-12 text-slate-400 mb-2" />
+                      <p className="text-xs font-semibold text-slate-700 mb-2">PDF Document Attached</p>
+                      <a
+                        href={receiptService.getReceiptFileUrl(id, 'view')}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-bold text-slate-900 underline"
+                      >
+                        Open PDF in New Tab
+                      </a>
+                    </div>
+                  </object>
                 </div>
-              </div>
+              ) : (
+                <div className="relative w-full h-full flex flex-col items-center justify-center p-2">
+                  <img
+                    src={receiptService.getReceiptFileUrl(id, 'view')}
+                    alt={receipt.title}
+                    className="h-full w-full object-contain max-h-[420px]"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      if (e.currentTarget.nextElementSibling) {
+                        e.currentTarget.nextElementSibling.style.display = 'block';
+                      }
+                    }}
+                  />
+                  <div style={{ display: 'none' }} className="text-center p-6 text-slate-400 space-y-2">
+                    <FileText className="mx-auto h-16 w-16 text-slate-300" />
+                    <p className="text-xs font-semibold text-slate-600">Document Attached</p>
+                  </div>
+                </div>
+              )
             ) : (
               <div className="text-center p-6 text-slate-400">
                 <FileText className="mx-auto h-12 w-12 mb-2" />

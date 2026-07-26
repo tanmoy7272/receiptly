@@ -279,3 +279,47 @@ export const deleteReceipt = async (userId, receiptId) => {
 
   return true;
 };
+
+export const getReceiptFileStream = async (userId, receiptId, action = 'view') => {
+  const receipt = await getReceiptById(userId, receiptId);
+
+  if (!receipt.fileUrl) {
+    const error = new Error('No document file attached to this receipt');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const response = await fetch(receipt.fileUrl);
+  if (!response.ok) {
+    const error = new Error('Failed to retrieve file from storage');
+    error.statusCode = 502;
+    throw error;
+  }
+
+  const arrayBuf = await response.arrayBuffer();
+  const buffer = Buffer.from(arrayBuf);
+
+  const cleanTitle = (receipt.title || 'receipt').replace(/[^a-zA-Z0-9_-]/g, '_');
+  const isPdf = receipt.fileType?.includes('pdf') || receipt.fileUrl?.endsWith('.pdf');
+  const isDoc = receipt.fileType?.includes('word') || receipt.fileType?.includes('officedocument') || Boolean(receipt.fileUrl?.match(/\.(doc|docx)$/i));
+
+  let ext = 'jpg';
+  let mime = receipt.fileType || 'image/jpeg';
+
+  if (isPdf) {
+    ext = 'pdf';
+    mime = 'application/pdf';
+  } else if (isDoc) {
+    ext = receipt.fileUrl?.endsWith('.doc') ? 'doc' : 'docx';
+    mime = receipt.fileType || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  }
+
+  const filename = `${cleanTitle}_${receipt.id.slice(0, 6)}.${ext}`;
+  const disposition = action === 'download' ? 'attachment' : 'inline';
+
+  return {
+    buffer,
+    contentType: mime,
+    contentDisposition: `${disposition}; filename="${filename}"`,
+  };
+};

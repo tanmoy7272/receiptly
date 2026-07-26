@@ -6,7 +6,8 @@ export const requireAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     const bearerToken = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
-    const token = req.cookies?.[COOKIE_NAME] || bearerToken;
+    const queryToken = req.query?.token;
+    const token = req.cookies?.[COOKIE_NAME] || bearerToken || queryToken;
 
     if (!token) {
       return res.status(401).json({
