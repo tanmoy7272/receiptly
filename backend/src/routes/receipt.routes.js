@@ -7,7 +7,6 @@ import {
   handleGetReceiptById,
   handleUpdateReceipt,
   handleDeleteReceipt,
-  handleGetReceiptFile,
 } from '../controllers/receipt.controller.js';
 
 const router = Router();
@@ -18,7 +17,6 @@ router.use(requireAuth);
 router.post('/', uploadReceiptFile, handleCreateReceipt);
 router.get('/', handleGetReceipts);
 router.get('/:id', handleGetReceiptById);
-router.get('/:id/file', handleGetReceiptFile);
 router.put('/:id', uploadReceiptFile, handleUpdateReceipt);
 router.delete('/:id', handleDeleteReceipt);
 

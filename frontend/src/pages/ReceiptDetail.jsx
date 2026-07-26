@@ -270,7 +270,7 @@ export const ReceiptDetail = () => {
             {receipt.fileUrl && (
               <div className="flex items-center gap-2">
                 <a
-                  href={receiptService.getReceiptFileUrl(id, 'view')}
+                  href={receipt.fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:underline"
@@ -278,7 +278,7 @@ export const ReceiptDetail = () => {
                   Open Full Document <ExternalLink className="h-3.5 w-3.5" />
                 </a>
                 <a
-                  href={receiptService.getReceiptFileUrl(id, 'download')}
+                  href={receipt.fileUrl}
                   download
                   className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-900 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200"
                 >
@@ -288,53 +288,38 @@ export const ReceiptDetail = () => {
             )}
           </div>
 
-          <div className="relative min-h-[360px] flex-1 rounded-lg border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
+          <div className="relative min-h-[320px] flex-1 rounded-lg border border-slate-200 bg-white overflow-hidden flex items-center justify-center">
             {receipt.fileUrl ? (
-              isPdf ? (
-                <div className="relative w-full h-full min-h-[380px]">
-                  <object
-                    data={receiptService.getReceiptFileUrl(id, 'view')}
-                    type="application/pdf"
-                    className="w-full h-full min-h-[380px] rounded-lg"
-                  >
-                    <div className="flex flex-col items-center justify-center p-2 h-full">
-                      <img
-                        src={receiptService.getReceiptFileUrl(id, 'view')}
-                        alt={receipt.title}
-                        className="h-full w-full object-contain max-h-[420px]"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          if (e.currentTarget.nextElementSibling) {
-                            e.currentTarget.nextElementSibling.style.display = 'block';
-                          }
-                        }}
-                      />
-                      <div style={{ display: 'none' }} className="text-center p-6 text-slate-400 space-y-2">
-                        <FileText className="mx-auto h-16 w-16 text-slate-300" />
-                        <p className="text-xs font-semibold text-slate-600">Document Attached</p>
-                      </div>
-                    </div>
-                  </object>
-                </div>
-              ) : (
-                <div className="relative w-full h-full flex flex-col items-center justify-center p-2">
-                  <img
-                    src={receiptService.getReceiptFileUrl(id, 'view')}
-                    alt={receipt.title}
-                    className="h-full w-full object-contain max-h-[420px]"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      if (e.currentTarget.nextElementSibling) {
-                        e.currentTarget.nextElementSibling.style.display = 'block';
-                      }
-                    }}
-                  />
-                  <div style={{ display: 'none' }} className="text-center p-6 text-slate-400 space-y-2">
-                    <FileText className="mx-auto h-16 w-16 text-slate-300" />
-                    <p className="text-xs font-semibold text-slate-600">Document Attached</p>
+              <div className="relative w-full h-full flex flex-col items-center justify-center p-2">
+                {isPdf && (
+                  <div className="absolute top-2 left-2 z-10 inline-flex items-center gap-1 rounded bg-red-100/90 backdrop-blur px-2.5 py-1 text-[11px] font-semibold text-red-700 border border-red-200 shadow-sm">
+                    <FileText className="h-3.5 w-3.5" /> PDF Document
                   </div>
+                )}
+                <img
+                  src={previewUrl}
+                  alt={receipt.title}
+                  className="h-full w-full object-contain max-h-[420px]"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    if (e.currentTarget.nextElementSibling) {
+                      e.currentTarget.nextElementSibling.style.display = 'block';
+                    }
+                  }}
+                />
+                <div style={{ display: 'none' }} className="text-center p-6 text-slate-400 space-y-2">
+                  <FileText className="mx-auto h-16 w-16 text-slate-300" />
+                  <p className="text-xs font-semibold text-slate-600">Document Attached</p>
+                  <a
+                    href={receipt.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-xs font-semibold text-blue-600 underline mt-1"
+                  >
+                    Open File
+                  </a>
                 </div>
-              )
+              </div>
             ) : (
               <div className="text-center p-6 text-slate-400">
                 <FileText className="mx-auto h-12 w-12 mb-2" />

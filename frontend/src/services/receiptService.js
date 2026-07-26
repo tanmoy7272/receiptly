@@ -29,11 +29,6 @@ export const receiptService = {
 
   getReceiptById: (id) => apiClient(`/receipts/${id}`, { method: 'GET' }),
 
-  getReceiptFileUrl: (id, action = 'view') => {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
-    return `${API_BASE_URL}/receipts/${id}/file?action=${action}`;
-  },
-
   createReceipt: (payload) =>
     apiClient('/receipts', {
       method: 'POST',

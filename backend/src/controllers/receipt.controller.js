@@ -4,7 +4,6 @@ import {
   getReceiptById,
   updateReceipt,
   deleteReceipt,
-  getReceiptFileStream,
 } from '../services/receipt.service.js';
 import { createReceiptSchema, updateReceiptSchema } from '../validators/receipt.validator.js';
 import { receiptSearchQuerySchema } from '../validators/receiptSearch.validator.js';
@@ -72,19 +71,6 @@ export const handleDeleteReceipt = async (req, res, next) => {
     return res.status(HTTP_STATUS.OK).json({
       message: 'Receipt deleted successfully.',
     });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const handleGetReceiptFile = async (req, res, next) => {
-  try {
-    const { action = 'view' } = req.query;
-    const fileResult = await getReceiptFileStream(req.user.id, req.params.id, action);
-
-    res.setHeader('Content-Type', fileResult.contentType);
-    res.setHeader('Content-Disposition', fileResult.contentDisposition);
-    return res.send(fileResult.buffer);
   } catch (error) {
     next(error);
   }
