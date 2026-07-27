@@ -48,6 +48,25 @@ export const handleTopEntities = async ({ userId, intent, filters }) => {
   const name = top[groupByField] || 'Other';
   const totalSpent = Math.round((Number(top._sum.amount) || 0) * 100) / 100;
 
+  const topReceiptsRaw = await prisma.receipt.findMany({
+    where: {
+      ...where,
+      [groupByField]: top[groupByField],
+    },
+    select: { title: true, merchant: true, amount: true, currency: true, purchaseDate: true, category: true },
+    orderBy: { purchaseDate: 'desc' },
+    take: 5,
+  });
+
+  const sampleReceipts = topReceiptsRaw.map((r) => ({
+    title: r.title,
+    merchant: r.merchant,
+    amount: Number(r.amount) || 0,
+    currency: r.currency || 'INR',
+    purchaseDate: r.purchaseDate ? new Date(r.purchaseDate).toISOString().split('T')[0] : null,
+    category: r.category,
+  }));
+
   return successResult(
     intent,
     {
@@ -55,6 +74,7 @@ export const handleTopEntities = async ({ userId, intent, filters }) => {
       [isTopMerchant ? 'merchant' : 'category']: name,
       totalSpent,
       receiptCount: top._count.id,
+      receipts: sampleReceipts,
     },
     { filters, period: filters.period }
   );

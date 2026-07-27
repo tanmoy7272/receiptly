@@ -22,6 +22,8 @@ const RECEIPT_DTO_SELECT = {
   invoiceNumber: true,
   hasWarranty: true,
   warrantyExpiryDate: true,
+  notes: true,
+  tags: true,
 };
 
 const formatReceiptDto = (r) => {

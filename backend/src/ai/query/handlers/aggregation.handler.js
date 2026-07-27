@@ -42,15 +42,24 @@ const formatReceiptDto = (r) => {
 export const handleTotalSpending = async ({ userId, intent, filters }) => {
   const where = buildReceiptWhereClause({ userId, filters });
 
-  // Select currencies to check for mixed currencies
+  // Select details including merchant, date, and title to support "where", "when", and "which platform" questions
   const receipts = await prisma.receipt.findMany({
     where,
-    select: { amount: true, currency: true },
+    select: {
+      id: true,
+      title: true,
+      merchant: true,
+      amount: true,
+      currency: true,
+      purchaseDate: true,
+      category: true,
+    },
+    orderBy: { purchaseDate: 'desc' },
   });
 
   const receiptCount = receipts.length;
   if (receiptCount === 0) {
-    return successResult(intent, { totalSpent: 0, receiptCount: 0, currency: 'INR' }, { filters, period: filters.period });
+    return successResult(intent, { totalSpent: 0, receiptCount: 0, currency: 'INR', receipts: [] }, { filters, period: filters.period });
   }
 
   const currencies = Array.from(new Set(receipts.map((r) => r.currency || 'INR')));
@@ -58,10 +67,20 @@ export const handleTotalSpending = async ({ userId, intent, filters }) => {
 
   const totalSpent = receipts.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
 
+  const sampleReceipts = receipts.slice(0, 5).map((r) => ({
+    title: r.title,
+    merchant: r.merchant,
+    amount: Number(r.amount) || 0,
+    currency: r.currency || 'INR',
+    purchaseDate: r.purchaseDate ? new Date(r.purchaseDate).toISOString().split('T')[0] : null,
+    category: r.category,
+  }));
+
   const data = {
     totalSpent: Math.round(totalSpent * 100) / 100,
     receiptCount,
     currency: mixedCurrency ? 'MIXED' : currencies[0] || 'INR',
+    receipts: sampleReceipts,
     ...(mixedCurrency ? { mixedCurrency: true, currencies } : {}),
     ...(filters.merchant ? { merchant: filters.merchant } : {}),
     ...(filters.category ? { category: filters.category } : {}),
