@@ -4,6 +4,23 @@ All notable changes to Receiptly will be documented here.
 
 ---
 
+## [1.1.0] - 2026-07-27
+
+### Ask Receiptly AI Assistant
+- **Modular Intent Query Engine:** Built a 3-tier Ask Receiptly AI pipeline (`classifyIntent` -> `executeIntent` -> `generateNaturalAnswer`).
+- **Multi-Merchant & Category Filtering:** Engineered dynamic PostgreSQL `OR` condition builders supporting queries like *"Swiggy and Amazon"* or *"Food and Electronics"*.
+- **Flexible Amount & Period Bounds:** Added regex extraction and Zod validation for price bounds (`minAmount`/`maxAmount`), specific 4-digit years (`2026`, `2025`), month names (`January`), and relative days (`LAST_30_DAYS`).
+- **Full Database Field Exposure:** Exposed all receipt schema properties (`title`, `merchant`, `merchantNormalized`, `amount`, `currency`, `category`, `purchaseDate`, `invoiceNumber`, `notes`, `tags`, `hasWarranty`, `warrantyExpiryDate`, `warrantyMonths`, `warrantyStatus`).
+- **Universal Answering & Zero Hardcoded Mentions:** Configured system prompts and fallbacks to answer strictly what was asked, removing any unasked mentions of missing warranties or vault terms.
+
+### UI & Quality Engineering
+- **Redesigned Light Glassmorphic UI:** Refactored Ask Receiptly component to a sleek light card (`from-indigo-50/70 via-white to-purple-50/40`) matching the dashboard aesthetic.
+- **Inline Markdown Bold Renderer:** Added custom React bold parser (`<strong className="font-semibold">`) to render AI highlights without displaying raw `**` asterisks.
+- **Expanded Test Coverage:** Expanded backend test suite to **118 unit & route tests across 24 files** and frontend test suite to **18 unit tests across 9 files**.
+- **100-Question Live Stress Test:** Validated 100 random real-world questions against local PostgreSQL database with a 100% pass rate.
+
+---
+
 ## [1.0.0] - 2026-07-25
 
 ### Core Features
