@@ -56,6 +56,9 @@ model Receipt {
   warrantyMonths     Int?
   warrantySource     String    @default("NONE") // EXPLICIT_DATE, DURATION, MANUAL, USER_EDITED, NONE
 
+  // AI Smart Search & Tags
+  tags               String[]  @default([])
+
   @@index([userId])
   @@index([userId, purchaseDate])
   @@index([userId, createdAt])

@@ -25,7 +25,9 @@ export const ReceiptCard = ({ receipt, onDelete }) => {
   const amountFormatted = formatINR(receipt.amount, receipt.currency);
 
   const isPdf = receipt.fileType === 'application/pdf' || receipt.fileUrl?.endsWith('.pdf');
-  const previewUrl = receipt.fileUrl;
+  const previewUrl = isPdf && receipt.fileUrl?.includes('/upload/')
+    ? receipt.fileUrl.replace('/upload/', '/upload/f_jpg,pg_1/').replace(/\.pdf$/i, '.jpg')
+    : receipt.fileUrl;
 
   const warrantyBadge = receipt.hasWarranty || receipt.warrantyExpiryDate
     ? getWarrantyBadge(receipt.warrantyExpiryDate)
@@ -88,6 +90,15 @@ export const ReceiptCard = ({ receipt, onDelete }) => {
               <ShieldCheck className="h-3 w-3" />
               {warrantyBadge.label}
             </span>
+          )}
+          {Array.isArray(receipt.tags) && receipt.tags.length > 0 && (
+            <div className="flex items-center gap-1">
+              {receipt.tags.slice(0, 2).map((t, idx) => (
+                <span key={idx} title="AI-generated search tag" className="inline-flex items-center rounded-md bg-indigo-50 px-1.5 py-0.5 text-[10px] font-medium text-indigo-700 border border-indigo-100">
+                  #{t}
+                </span>
+              ))}
+            </div>
           )}
         </div>
 

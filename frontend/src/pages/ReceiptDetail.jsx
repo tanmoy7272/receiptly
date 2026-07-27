@@ -25,6 +25,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { receiptService } from '../services/receiptService';
 import { ROUTES, RECEIPT_CATEGORIES } from '../utils/constants';
 import { getWarrantyBadge } from '../components/receipt/ReceiptCard';
+import { ReceiptInsights } from '../components/receipt/ReceiptInsights';
 import { formatIndianDate, formatINR } from '../utils/formatters';
 
 export const ReceiptDetail = () => {
@@ -189,7 +190,12 @@ export const ReceiptDetail = () => {
   }
 
   const isPdf = receipt.fileType === 'application/pdf' || receipt.fileUrl?.endsWith('.pdf');
-  const previewUrl = receipt.fileUrl;
+  const previewUrl = isPdf && receipt.fileUrl?.includes('/upload/')
+    ? receipt.fileUrl.replace('/upload/', '/upload/f_jpg,pg_1/').replace(/\.pdf$/i, '.jpg')
+    : receipt.fileUrl;
+  const openUrl = isPdf && receipt.fileUrl?.includes('/upload/')
+    ? receipt.fileUrl.replace('/upload/', '/upload/f_jpg,q_auto:best/').replace(/\.pdf$/i, '.jpg')
+    : receipt.fileUrl;
 
   const warrantyBadge = receipt.hasWarranty || receipt.warrantyExpiryDate
     ? getWarrantyBadge(receipt.warrantyExpiryDate)
@@ -270,7 +276,7 @@ export const ReceiptDetail = () => {
             {receipt.fileUrl && (
               <div className="flex items-center gap-2">
                 <a
-                  href={receipt.fileUrl}
+                  href={openUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:underline"
@@ -278,7 +284,7 @@ export const ReceiptDetail = () => {
                   Open Full Document <ExternalLink className="h-3.5 w-3.5" />
                 </a>
                 <a
-                  href={receipt.fileUrl?.includes('/upload/') ? receipt.fileUrl.replace('/upload/', '/upload/fl_attachment/') : receipt.fileUrl}
+                  href={openUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   download
@@ -313,7 +319,7 @@ export const ReceiptDetail = () => {
                   <FileText className="mx-auto h-16 w-16 text-slate-300" />
                   <p className="text-xs font-semibold text-slate-600">Document Attached</p>
                   <a
-                    href={receipt.fileUrl}
+                    href={openUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block text-xs font-semibold text-blue-600 underline mt-1"
@@ -388,6 +394,26 @@ export const ReceiptDetail = () => {
                   </span>
                 </div>
               )}
+
+              {/* AI Smart Search Tags Section */}
+              {Array.isArray(receipt.tags) && receipt.tags.length > 0 && (
+                <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
+                  <span className="font-semibold text-slate-500 flex items-center gap-1.5">
+                    <Tag className="h-3.5 w-3.5 text-indigo-600" /> Tags
+                  </span>
+                  <div className="flex flex-wrap items-center gap-1.5 justify-end">
+                    {receipt.tags.map((tag, idx) => (
+                      <span
+                        key={idx}
+                        title="AI-generated search tag"
+                        className="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700 border border-indigo-100"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {receipt.notes && (
@@ -398,6 +424,10 @@ export const ReceiptDetail = () => {
                 <p className="text-xs text-slate-700 whitespace-pre-wrap">{receipt.notes}</p>
               </div>
             )}
+
+            <div className="mt-4">
+              <ReceiptInsights receiptId={id} />
+            </div>
           </div>
 
           <div className="border-t border-slate-100 pt-4 text-[11px] text-slate-400">

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
-import { RECEIPT_CATEGORIES, WARRANTY_SOURCES } from '../../utils/constants';
-import { extractReceiptFileAI } from '../../services/receiptService';
+import { RECEIPT_CATEGORIES, WARRANTY_SOURCES, ROUTES } from '../../utils/constants';
+import { extractReceiptFileAI, receiptService } from '../../services/receiptService';
 import { formatDateString } from '../../utils/formatters';
 import { useToast } from '../../context/ToastContext';
+import { DuplicateReceiptDialog } from './DuplicateReceiptDialog';
 
 const cleanFieldValue = (str) => {
   if (!str || typeof str !== 'string') return '';
@@ -23,11 +25,15 @@ export const ReceiptForm = ({
   onCancel,
 }) => {
   const toast = useToast();
+  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(initialData.fileUrl || '');
   const [aiParsing, setAiParsing] = useState(false);
   const [aiExtractedSuccess, setAiExtractedSuccess] = useState(false);
   const [formError, setFormError] = useState('');
+  const [checkingDuplicate, setCheckingDuplicate] = useState(false);
+  const [duplicateCandidate, setDuplicateCandidate] = useState(null);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
 
   const [formData, setFormData] = useState({
     title: initialData.title || '',
@@ -134,8 +140,8 @@ export const ReceiptForm = ({
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e, bypassDuplicate = false) => {
+    if (e && e.preventDefault) e.preventDefault();
     setFormError('');
 
     if (!isEdit && !file) {
@@ -175,6 +181,31 @@ export const ReceiptForm = ({
       warrantyExpiryDate: formData.hasWarranty && formData.warrantyExpiryDate ? formData.warrantyExpiryDate : null,
       warrantySource: formData.hasWarranty ? formData.warrantySource : 'NONE',
     };
+
+    if (!isEdit && !bypassDuplicate && (formData.purchaseDate || formData.invoiceNumber || formData.amount)) {
+      setCheckingDuplicate(true);
+      try {
+        const checkRes = await receiptService.checkDuplicate({
+          title: payload.title,
+          merchant: payload.merchant,
+          amount: payload.amount,
+          purchaseDate: payload.purchaseDate,
+          category: payload.category,
+          invoiceNumber: payload.invoiceNumber,
+        });
+
+        if (checkRes?.isDuplicate && checkRes?.candidate) {
+          setDuplicateCandidate(checkRes.candidate);
+          setShowDuplicateModal(true);
+          setCheckingDuplicate(false);
+          return;
+        }
+      } catch (err) {
+        // Silent fallback on duplicate check failure -> proceed directly to submit
+      } finally {
+        setCheckingDuplicate(false);
+      }
+    }
 
     onSubmit(payload);
   };
@@ -427,14 +458,30 @@ export const ReceiptForm = ({
 
       <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-200">
         {onCancel && (
-          <Button type="button" variant="secondary" onClick={onCancel} disabled={loading || aiParsing}>
+          <Button type="button" variant="secondary" onClick={onCancel} disabled={loading || aiParsing || checkingDuplicate}>
             Cancel
           </Button>
         )}
-        <Button type="submit" disabled={loading || aiParsing}>
-          {loading ? 'Saving...' : isEdit ? 'Update Receipt' : 'Save Receipt'}
+        <Button type="submit" disabled={loading || aiParsing || checkingDuplicate}>
+          {loading || checkingDuplicate ? 'Saving...' : isEdit ? 'Update Receipt' : 'Save Receipt'}
         </Button>
       </div>
+
+      <DuplicateReceiptDialog
+        isOpen={showDuplicateModal}
+        candidate={duplicateCandidate}
+        onContinue={() => {
+          setShowDuplicateModal(false);
+          handleSubmit(null, true);
+        }}
+        onViewExisting={(candidateId) => {
+          setShowDuplicateModal(false);
+          navigate(ROUTES.RECEIPT_DETAIL(candidateId));
+        }}
+        onCancel={() => {
+          setShowDuplicateModal(false);
+        }}
+      />
     </form>
   );
 };

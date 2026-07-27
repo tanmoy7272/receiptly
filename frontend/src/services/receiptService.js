@@ -29,6 +29,19 @@ export const receiptService = {
 
   getReceiptById: (id) => apiClient(`/receipts/${id}`, { method: 'GET' }),
 
+  getReceiptInsights: (id, options = {}) =>
+    apiClient(`/receipts/${id}/insights`, {
+      method: 'GET',
+      ...options,
+    }),
+
+  checkDuplicate: (payload) =>
+    apiClient('/receipts/check-duplicate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'application/json' },
+    }),
+
   createReceipt: (payload) =>
     apiClient('/receipts', {
       method: 'POST',

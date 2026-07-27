@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { RECEIPT_CATEGORIES } from '../constants/receipts.js';
+import { normalizeTags } from '../utils/tagNormalizer.util.js';
+import { normalizeMerchantName } from '../utils/merchantNormalizer.util.js';
 
 export const createReceiptSchema = z.object({
   title: z
@@ -10,6 +12,10 @@ export const createReceiptSchema = z.object({
     .string({ required_error: 'Merchant name is required' })
     .trim()
     .min(1, 'Merchant name cannot be empty'),
+  merchantNormalized: z.preprocess(
+    (val) => (typeof val === 'string' && val.trim() ? normalizeMerchantName(val) : undefined),
+    z.string().trim().optional()
+  ),
   amount: z.preprocess(
     (val) => (typeof val === 'string' ? parseFloat(val) : val),
     z.number({ required_error: 'Amount is required' }).positive('Amount must be greater than 0')
@@ -42,6 +48,10 @@ export const createReceiptSchema = z.object({
     z.number().int().nonnegative().optional().nullable()
   ),
   warrantySource: z.string().trim().optional().default('NONE'),
+  tags: z.preprocess(
+    (val) => normalizeTags(val),
+    z.array(z.string()).optional().default([])
+  ),
 });
 
 export const updateReceiptSchema = createReceiptSchema.partial();

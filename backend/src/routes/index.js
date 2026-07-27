@@ -4,6 +4,7 @@ import authRoutes from './auth.routes.js';
 import receiptRoutes from './receipt.routes.js';
 import aiRoutes from './ai.routes.js';
 import dashboardRoutes from './dashboard.routes.js';
+import askReceiptlyRoutes from './askReceiptly.routes.js';
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.get('/', (req, res) => {
       auth: '/api/v1/auth',
       receipts: '/api/v1/receipts',
       dashboard: '/api/v1/dashboard',
+      ask: '/api/v1/ask',
     },
   });
 });
@@ -27,5 +29,6 @@ router.use('/auth', authRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/ai', aiRoutes);
 router.use('/receipts', receiptRoutes);
+router.use('/ask', askReceiptlyRoutes);
 
 export default router;

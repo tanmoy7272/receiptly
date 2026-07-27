@@ -9,6 +9,8 @@
  */
 import prisma from '../lib/prisma.js';
 import { uploadToCloudinary, deleteFromCloudinary } from '../lib/cloudinary.js';
+import { normalizeTags } from '../utils/tagNormalizer.util.js';
+import { normalizeMerchantName } from '../utils/merchantNormalizer.util.js';
 
 /**
  * Creates a new receipt, uploads attached file to Cloudinary, and saves to database.
@@ -26,7 +28,9 @@ export const createReceipt = async (userId, data, file) => {
   }
 
   const uploadResult = await uploadToCloudinary(file.buffer, file.mimetype);
-  const merchantNormalized = data.merchant.trim().toLowerCase();
+  const merchantNormalized = data.merchantNormalized
+    ? normalizeMerchantName(data.merchantNormalized)
+    : normalizeMerchantName(data.merchant);
 
   const receipt = await prisma.receipt.create({
     data: {
@@ -50,6 +54,7 @@ export const createReceipt = async (userId, data, file) => {
       warrantyExpiryDate: data.warrantyExpiryDate ? new Date(data.warrantyExpiryDate) : null,
       warrantyMonths: data.warrantyMonths ? Number(data.warrantyMonths) : null,
       warrantySource: data.warrantySource || 'NONE',
+      tags: normalizeTags(data.tags, data.category),
     },
   });
 
@@ -88,6 +93,7 @@ export const getUserReceipts = async (userId, queryParams = {}) => {
       { merchantNormalized: { contains: searchNormalized, mode: 'insensitive' } },
       { notes: { contains: searchRaw, mode: 'insensitive' } },
       { invoiceNumber: { contains: searchRaw, mode: 'insensitive' } },
+      { tags: { hasSome: [searchNormalized, searchRaw] } },
     ];
   }
 
@@ -235,7 +241,11 @@ export const updateReceipt = async (userId, receiptId, data, file) => {
   if (data.title) updateData.title = data.title.trim();
   if (data.merchant) {
     updateData.merchant = data.merchant.trim();
-    updateData.merchantNormalized = data.merchant.trim().toLowerCase();
+    updateData.merchantNormalized = data.merchantNormalized
+      ? normalizeMerchantName(data.merchantNormalized)
+      : normalizeMerchantName(data.merchant);
+  } else if (data.merchantNormalized) {
+    updateData.merchantNormalized = normalizeMerchantName(data.merchantNormalized);
   }
   if (data.amount !== undefined) updateData.amount = Number(data.amount);
   if (data.currency) updateData.currency = data.currency;
@@ -251,6 +261,7 @@ export const updateReceipt = async (userId, receiptId, data, file) => {
   if (data.warrantyExpiryDate !== undefined) updateData.warrantyExpiryDate = data.warrantyExpiryDate ? new Date(data.warrantyExpiryDate) : null;
   if (data.warrantyMonths !== undefined) updateData.warrantyMonths = data.warrantyMonths ? Number(data.warrantyMonths) : null;
   if (data.warrantySource) updateData.warrantySource = data.warrantySource;
+  if (data.tags !== undefined) updateData.tags = normalizeTags(data.tags, data.category || existingReceipt.category);
 
   updateData.fileUrl = fileUrl;
   updateData.filePublicId = filePublicId;

@@ -12,6 +12,7 @@ import prisma from '../lib/prisma.js';
 import { RECEIPT_CATEGORIES } from '../constants/receipts.js';
 import { aiExtractionSchema } from '../validators/ai.validator.js';
 import { logger } from '../utils/logger.js';
+import { normalizeMerchantName } from '../utils/merchantNormalizer.util.js';
 import { extractDocumentText } from '../utils/ocr.util.js';
 
 const groqApiKey = process.env.GROQ_API_KEY;
@@ -33,14 +34,16 @@ RULES FOR EXTRACTION:
    - NEVER name the receipt "Platform Fee", "GT Charges", "Delivery Charge", "Tax Invoice", or the store name.
 2. merchant: Primary vendor, restaurant, store, or marketplace platform name printed at the top of the document (e.g. "Byepass Dhaba", "Croma", "Amazon", "Flipkart").
    - Extract the primary store, restaurant, or platform name printed on the receipt header.
-3. amount: Extract the FINAL NET GRAND TOTAL AMOUNT PAID as a plain numeric float.
+3. merchantNormalized: Compute a clean canonical Title Case merchant name without legal/corporate suffixes (e.g. "Amazon" for "AMAZON SELLER SERVICES PVT LTD", "Swiggy" for "SWIGGY INDIA LIMITED"). Max 40 characters.
+4. amount: Extract the FINAL NET GRAND TOTAL AMOUNT PAID as a plain numeric float.
    - For multi-page order bundles under a single Order ID where costs are itemized across pages (e.g. product price + platform fee + GT charges), calculate or extract the full net total paid for the entire order across all pages.
    - Do NOT select small individual delivery fee subtotals or tax components.
-4. currency: 3-letter currency code (default "INR").
-5. purchaseDate: Search specifically inside document headers for "Invoice Date", "Order Date", "Billing Date", "Date", or "Transaction Date". Format strictly as YYYY-MM-DD. For thermal bills with dates like "Date: 24/07/26", parse 24 as Day, 07 as Month, 26 as 2026, returning "2026-07-24". Never leave purchaseDate null if any date pattern (DD/MM/YY or DD/MM/YYYY) is present in the document.
-6. category: Exactly one of: [${RECEIPT_CATEGORIES.map((c) => `"${c}"`).join(', ')}].
-7. invoiceNumber: Primary Order ID (e.g. "OD438060927150219100"), Invoice Number, Bill No, or Tax ID printed on the document.
-8. warranty: Set warrantyMonths, warrantyExpiryDate, and warrantySource to NULL/NONE UNLESS warranty coverage is explicitly printed on the document.
+5. currency: 3-letter currency code (default "INR").
+6. purchaseDate: Search specifically inside document headers for "Invoice Date", "Order Date", "Billing Date", "Date", or "Transaction Date". Format strictly as YYYY-MM-DD. For thermal bills with dates like "Date: 24/07/26", parse 24 as Day, 07 as Month, 26 as 2026, returning "2026-07-24". Never leave purchaseDate null if any date pattern (DD/MM/YY or DD/MM/YYYY) is present in the document.
+7. category: Exactly one of: [${RECEIPT_CATEGORIES.map((c) => `"${c}"`).join(', ')}].
+8. invoiceNumber: Primary Order ID (e.g. "OD438060927150219100"), Invoice Number, Bill No, or Tax ID printed on the document.
+9. warranty: Set warrantyMonths, warrantyExpiryDate, and warrantySource to NULL/NONE UNLESS warranty coverage is explicitly printed on the document.
+10. tags: Extract up to 5 searchable lowercase keywords/tags representing product category, item name, or vendor platform (e.g. ["electronics", "laptop", "office", "apple"]). Max 20 characters per tag.
 
 RETURN ONLY VALID JSON MATCHING THIS SCHEMA:
 {
@@ -49,6 +52,7 @@ RETURN ONLY VALID JSON MATCHING THIS SCHEMA:
   "data": {
     "title": { "value": "<STRING: Primary Product Title>" },
     "merchant": { "value": "<STRING: Vendor Store Name>" },
+    "merchantNormalized": { "value": "<STRING: Canonical Merchant Name>" },
     "amount": { "value": 0.0 },
     "currency": { "value": "INR" },
     "purchaseDate": { "value": "YYYY-MM-DD" },
@@ -57,7 +61,8 @@ RETURN ONLY VALID JSON MATCHING THIS SCHEMA:
     "invoiceNumber": { "value": "<STRING: Invoice or Order ID>" },
     "warrantyMonths": { "value": null },
     "warrantyExpiryDate": { "value": null },
-    "warrantySource": { "value": "NONE" }
+    "warrantySource": { "value": "NONE" },
+    "tags": { "value": ["electronics", "laptop"] }
   }
 }
 `;
@@ -88,6 +93,7 @@ export const parseReceiptWithAI = async (receipt) => {
     data: {
       title: { value: receipt.title || 'Receipt Document', confidence: 0.8 },
       merchant: { value: receipt.merchant || 'Store Vendor', confidence: 0.8 },
+      merchantNormalized: { value: normalizeMerchantName(receipt.merchant || 'Store Vendor'), confidence: 0.85 },
       amount: { value: Number(receipt.amount) || 0, confidence: 0.8 },
       currency: { value: receipt.currency || 'INR', confidence: 0.9 },
       purchaseDate: { value: null, confidence: 0 },
@@ -97,6 +103,7 @@ export const parseReceiptWithAI = async (receipt) => {
       warrantyMonths: { value: null, confidence: 0 },
       warrantyExpiryDate: { value: null, confidence: 0 },
       warrantySource: { value: 'NONE', confidence: 0 },
+      tags: { value: Array.isArray(receipt.tags) ? receipt.tags : [], confidence: 0.8 },
     },
   });
 

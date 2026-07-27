@@ -5,7 +5,7 @@ export const getDashboardData = async (userId) => {
   const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
   // 1. Overall Aggregations
-  const [totalReceipts, totalSpentAgg, averageSpendAgg, thisMonthAgg, recentReceipts, categoriesGrouped] =
+  const [totalReceipts, totalSpentAgg, averageSpendAgg, thisMonthAgg, recentReceipts, categoriesGrouped, activeWarrantiesCount] =
     await Promise.all([
       // Total count
       prisma.receipt.count({ where: { userId } }),
@@ -45,6 +45,15 @@ export const getDashboardData = async (userId) => {
         _sum: { amount: true },
         _count: { id: true },
         where: { userId },
+      }),
+
+      // Active warranties count
+      prisma.receipt.count({
+        where: {
+          userId,
+          hasWarranty: true,
+          warrantyExpiryDate: { gte: now },
+        },
       }),
     ]);
 
@@ -119,5 +128,6 @@ export const getDashboardData = async (userId) => {
     recentReceipts,
     categoryBreakdown,
     monthlySpending,
+    activeWarranties: activeWarrantiesCount,
   };
 };

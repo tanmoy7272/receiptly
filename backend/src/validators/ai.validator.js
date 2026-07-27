@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { RECEIPT_CATEGORIES } from '../constants/receipts.js';
+import { normalizeTags } from '../utils/tagNormalizer.util.js';
+import { normalizeMerchantName } from '../utils/merchantNormalizer.util.js';
 
 const normalizeToISODate = (val) => {
   if (!val || typeof val !== 'string') return null;
@@ -41,6 +43,18 @@ export const aiExtractionSchema = z.object({
   data: z.object({
     title: fieldConfidenceSchema(z.string().trim()),
     merchant: fieldConfidenceSchema(z.string().trim()),
+    merchantNormalized: fieldConfidenceSchema(
+      z.preprocess(
+        (val, ctx) => {
+          if (typeof val === 'string' && val.trim()) {
+            return normalizeMerchantName(val);
+          }
+          const rawMerchant = ctx?.parent?.merchant?.value;
+          return rawMerchant ? normalizeMerchantName(rawMerchant) : null;
+        },
+        z.string().nullable().optional()
+      )
+    ).optional(),
     amount: fieldConfidenceSchema(
       z.preprocess((val) => (typeof val === 'string' ? parseFloat(val.replace(/[^0-9.]/g, '')) : val), z.number().nonnegative())
     ),
@@ -64,5 +78,11 @@ export const aiExtractionSchema = z.object({
       z.preprocess((val) => normalizeToISODate(val), z.string().nullable().optional())
     ).optional(),
     warrantySource: fieldConfidenceSchema(z.string().trim()).optional(),
+    tags: fieldConfidenceSchema(
+      z.preprocess(
+        (val) => normalizeTags(val),
+        z.array(z.string()).default([])
+      )
+    ).optional(),
   }),
 });

@@ -26,6 +26,8 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { ReceiptCard } from '../components/receipt/ReceiptCard';
 import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
+import { AiSpendingSummary } from '../components/dashboard/AiSpendingSummary';
+import { AskReceiptlyCard } from '../components/ask/AskReceiptlyCard';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -188,6 +190,8 @@ export const Dashboard = () => {
       ) : (
         /* Full Dashboard Layout */
         <div className="space-y-6 sm:space-y-8">
+          <AiSpendingSummary />
+
           <ConfirmDialog
             isOpen={Boolean(deleteReceiptId)}
             title="Delete this receipt?"
@@ -263,6 +267,9 @@ export const Dashboard = () => {
               );
             })()}
           </div>
+
+          {/* Ask Receiptly Conversational Assistant */}
+          <AskReceiptlyCard />
 
           {/* Rolling 6-Month Chart & Category Breakdown */}
           <div className="grid gap-6 lg:grid-cols-3">
