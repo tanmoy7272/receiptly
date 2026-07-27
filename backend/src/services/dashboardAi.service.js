@@ -6,7 +6,7 @@
  * Guiding Principle: AI summarizes. Backend computes. User reads.
  * ============================================================================
  */
-import { groq, TEXT_MODEL, isAiEnabled } from '../ai/groqClient.js';
+import { groq, TEXT_MODEL, isAiEnabled, callGroqChatCompletion } from '../ai/groqClient.js';
 import { BoundedTtlCache } from '../ai/cache.js';
 import { logAiTelemetry } from '../ai/telemetry.js';
 import { checkAiRateLimit } from '../ai/rateLimiter.js';
@@ -127,11 +127,8 @@ export const getDashboardAiSummary = async (userId) => {
     const prompt = buildDashboardSummaryPrompt(analyticsPayload);
 
     // 7. Execute Groq LLM completion with AbortController 10s timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
     try {
-      const completion = await groq.chat.completions.create(
+      const completion = await callGroqChatCompletion(
         {
           messages: [prompt.system, prompt.user],
           model: TEXT_MODEL,
