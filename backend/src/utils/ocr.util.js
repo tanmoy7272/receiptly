@@ -1,4 +1,6 @@
-import { PDFParse } from 'pdf-parse';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { PDFParse } = require('pdf-parse');
 import { createWorker } from 'tesseract.js';
 import mammoth from 'mammoth';
 import sharp from 'sharp';
