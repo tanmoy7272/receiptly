@@ -7,21 +7,13 @@
  * Flow: Controller -> extractDocumentText (OCR) -> AI Service -> Groq SDK -> Zod Validator
  * ============================================================================
  */
-import Groq from 'groq-sdk';
 import prisma from '../lib/prisma.js';
 import { RECEIPT_CATEGORIES } from '../constants/receipts.js';
 import { aiExtractionSchema } from '../validators/ai.validator.js';
 import { logger } from '../utils/logger.js';
 import { normalizeMerchantName } from '../utils/merchantNormalizer.util.js';
 import { extractDocumentText } from '../utils/ocr.util.js';
-
-const groqApiKey = process.env.GROQ_API_KEY;
-const isGroqConfigured = Boolean(groqApiKey && groqApiKey !== 'gsk_your_groq_api_key_here');
-const groq = isGroqConfigured ? new Groq({ apiKey: groqApiKey }) : null;
-
-// Configurable Groq Models via Environment Variables
-const TEXT_MODEL = process.env.GROQ_TEXT_MODEL || process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
-const VISION_MODEL = process.env.GROQ_VISION_MODEL || 'llama-3.3-70b-versatile';
+import { groq, callGroqChatCompletion, TEXT_MODEL } from '../ai/groqClient.js';
 
 const SYSTEM_PROMPT = `
 You are an enterprise financial document extraction model for Receiptly designed to output valid JSON.
@@ -153,7 +145,7 @@ export const parseReceiptWithAI = async (receipt) => {
   }
 
   try {
-    const completion = await groq.chat.completions.create({
+    const completion = await callGroqChatCompletion({
       messages,
       model: modelToUse,
       temperature: 0.0,
