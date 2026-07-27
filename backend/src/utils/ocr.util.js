@@ -1,6 +1,4 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const pdfParse = require('pdf-parse');
+import * as pdfjsLib from 'pdfjs-dist/build/pdf.js';
 import { createWorker } from 'tesseract.js';
 import mammoth from 'mammoth';
 import sharp from 'sharp';
@@ -9,10 +7,20 @@ import { logger } from './logger.js';
 export const inspectPdfBuffer = async (buffer) => {
   try {
     if (!buffer || !Buffer.isBuffer(buffer)) return { text: '', numpages: 1 };
-    const data = await pdfParse(buffer);
-    const text = (data.text || '').trim();
-    const numpages = typeof data.numpages === 'number' ? data.numpages : 1;
-    return { text, numpages };
+    const uint8Array = new Uint8Array(buffer);
+    const loadingTask = pdfjsLib.getDocument({ data: uint8Array, useSystemFonts: true, isEvalSupported: false });
+    const pdfDocument = await loadingTask.promise;
+    const numpages = pdfDocument.numPages;
+
+    let fullText = '';
+    for (let i = 1; i <= numpages; i++) {
+      const page = await pdfDocument.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map((item) => item.str).join(' ');
+      fullText += pageText + '\n';
+    }
+
+    return { text: fullText.trim(), numpages };
   } catch (err) {
     logger.warn('PDF Parse extraction warning:', err.message);
     return { text: '', numpages: 1 };
