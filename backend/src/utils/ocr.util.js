@@ -1,6 +1,6 @@
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const { PDFParse } = require('pdf-parse');
+const pdfParse = require('pdf-parse');
 import { createWorker } from 'tesseract.js';
 import mammoth from 'mammoth';
 import sharp from 'sharp';
@@ -9,15 +9,9 @@ import { logger } from './logger.js';
 export const inspectPdfBuffer = async (buffer) => {
   try {
     if (!buffer || !Buffer.isBuffer(buffer)) return { text: '', numpages: 1 };
-    const uint8Array = new Uint8Array(buffer);
-    const parser = new PDFParse(uint8Array);
-    const textResult = await parser.getText();
-    let text = (textResult?.text || '').replace(/-- \d+ of \d+ --/g, '').trim();
-    if (!text && Array.isArray(textResult?.pages)) {
-      text = textResult.pages.map((p) => p.text || '').join('\n').trim();
-    }
-    const numpages = typeof textResult?.total === 'number' ? textResult.total : 1;
-    await parser.destroy();
+    const data = await pdfParse(buffer);
+    const text = (data.text || '').trim();
+    const numpages = typeof data.numpages === 'number' ? data.numpages : 1;
     return { text, numpages };
   } catch (err) {
     logger.warn('PDF Parse extraction warning:', err.message);
