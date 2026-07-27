@@ -16,7 +16,7 @@ const userRequestsMap = new Map(); // userId -> { count, windowStart }
  * @param {number} windowMs - Time window in milliseconds (default 60,000ms = 1 min)
  * @returns {{ allowed: boolean, retryAfterMs?: number }}
  */
-export const checkAiRateLimit = (userId, maxRequests = 20, windowMs = 60000) => {
+export const checkAiRateLimit = (userId, maxRequests = 300, windowMs = 60000) => {
   if (!userId) {
     return { allowed: true };
   }

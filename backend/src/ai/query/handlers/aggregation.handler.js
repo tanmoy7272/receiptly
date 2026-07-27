@@ -22,17 +22,34 @@ const RECEIPT_DTO_SELECT = {
   category: true,
   purchaseDate: true,
   invoiceNumber: true,
+  notes: true,
+  tags: true,
   hasWarranty: true,
   warrantyExpiryDate: true,
+  warrantyMonths: true,
 };
 
 const formatReceiptDto = (r) => {
   if (!r) return null;
+  const now = new Date();
+  const isExpired = r.warrantyExpiryDate ? new Date(r.warrantyExpiryDate) < now : false;
+  const isActiveWarranty = Boolean(r.hasWarranty && !isExpired);
+
   return {
-    ...r,
+    id: r.id,
+    title: r.title,
+    merchant: r.merchant,
     amount: Number(r.amount) || 0,
+    currency: r.currency || 'INR',
+    category: r.category,
     purchaseDate: r.purchaseDate ? new Date(r.purchaseDate).toISOString().split('T')[0] : null,
+    invoiceNumber: r.invoiceNumber || null,
+    notes: r.notes || null,
+    tags: r.tags || [],
+    hasWarranty: Boolean(r.hasWarranty),
     warrantyExpiryDate: r.warrantyExpiryDate ? new Date(r.warrantyExpiryDate).toISOString().split('T')[0] : null,
+    warrantyMonths: r.warrantyMonths || null,
+    warrantyStatus: isActiveWarranty ? 'ACTIVE' : isExpired ? 'EXPIRED' : 'NONE',
   };
 };
 
@@ -42,18 +59,10 @@ const formatReceiptDto = (r) => {
 export const handleTotalSpending = async ({ userId, intent, filters }) => {
   const where = buildReceiptWhereClause({ userId, filters });
 
-  // Select details including merchant, date, and title to support "where", "when", and "which platform" questions
+  // Select all parameters to support any user questions about receipts
   const receipts = await prisma.receipt.findMany({
     where,
-    select: {
-      id: true,
-      title: true,
-      merchant: true,
-      amount: true,
-      currency: true,
-      purchaseDate: true,
-      category: true,
-    },
+    select: RECEIPT_DTO_SELECT,
     orderBy: { purchaseDate: 'desc' },
   });
 
@@ -66,15 +75,7 @@ export const handleTotalSpending = async ({ userId, intent, filters }) => {
   const mixedCurrency = currencies.length > 1;
 
   const totalSpent = receipts.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
-
-  const sampleReceipts = receipts.slice(0, 5).map((r) => ({
-    title: r.title,
-    merchant: r.merchant,
-    amount: Number(r.amount) || 0,
-    currency: r.currency || 'INR',
-    purchaseDate: r.purchaseDate ? new Date(r.purchaseDate).toISOString().split('T')[0] : null,
-    category: r.category,
-  }));
+  const sampleReceipts = receipts.slice(0, 10).map(formatReceiptDto);
 
   const data = {
     totalSpent: Math.round(totalSpent * 100) / 100,

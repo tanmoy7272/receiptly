@@ -77,9 +77,15 @@ export const extractFilters = (normalizedQuestion) => {
   // 4. Generic Merchant Phrase Extraction (Dynamic phrase extraction without hardcoded vendor lists)
   // Regex Explanation: Matches phrases like "spent on Swiggy" or "from Amazon" and extracts vendor name into match[1]
   const stopWords = [
-    'my', 'total', 'all', 'spending', 'expenses', 'cost', 'purchases', 'receipts', 'bills',
+    'my', 'total', 'all', 'spending', 'expenses', 'cost', 'costs', 'purchases', 'receipts', 'bills',
     'food', 'travel', 'shopping', 'medical', 'groceries', 'education', 'other',
-    'this', 'last', 'today', 'the', 'a', 'an', 'in', 'for', 'overall', 'month', 'year'
+    'this', 'last', 'today', 'the', 'a', 'an', 'in', 'for', 'overall', 'month', 'year', 'yearly', 'monthly',
+    'how', 'much', 'many', 'spend', 'spent', 'pay', 'paid', 'purchase', 'bought', 'buy',
+    'what', 'was', 'were', 'is', 'are', 'do', 'did', 'does', 'i', 'we', 'have', 'has', 'had',
+    'biggest', 'smallest', 'highest', 'lowest', 'cheapest', 'most', 'least', 'expensive',
+    'average', 'avg', 'count', 'number', 'breakdown', 'distribution', 'recent', 'latest',
+    'top', 'category', 'categories', 'merchant', 'merchants', 'store', 'stores', 'vendor', 'vendors',
+    'warranty', 'warranties', 'expiring', 'active', 'invoice', 'invoices', 'vault', 'show', 'find', 'get', 'list', 'check', 'any'
   ];
 
   const merchantPatterns = [
@@ -108,12 +114,14 @@ export const extractFilters = (normalizedQuestion) => {
   }
 
   // 5. Generic Item / Product Search Query Extraction
-  // Regex Explanation: Matches phrases like "did I buy saree?" or "show coffee receipts" and extracts item name into match[1]
-  if (!filters.merchant && !filters.category && !filters.invoiceNumber && !normalizedQuestion.includes('warranty') && !normalizedQuestion.includes('warranties')) {
+  const isIntentQuestion = /\b(?:spend|spent|spending|expense|expenses|cost|costs|total|average|avg|count|how much|how many|biggest|smallest|highest|lowest|cheapest|most expensive|recent|latest|monthly|yearly|breakdown|distribution|top category|top merchant|active warranties|expiring warranties)\b/i.test(normalizedQuestion);
+
+  if (!filters.merchant && !filters.category && !filters.invoiceNumber && !normalizedQuestion.includes('warranty') && !normalizedQuestion.includes('warranties') && !isIntentQuestion) {
     const itemPatterns = [
-      /\b(?:did i|have i|did we|have we)\s+(?:buy|bought|purchase|purchased|get|have)\s+(?:(?:any|a|an)\b\s+)?([a-z0-9\s&'-]+?)(?:\s+receipts?|\s+purchases?|\s+bills?|\s+this|\s+last|\?|$)/i,
+      /\b(?:did i|have i|did we|have we|i)\s+(?:buy|bought|bough|bght|bot|buyed|purchase|purchased|get|got|have)\s+(?:(?:any|a|an)\b\s+)?([a-z0-9\s&'-]+?)(?:\s+receipts?|\s+purchases?|\s+bills?|\s+this|\s+last|\?|$)/i,
       /\b(?:show|find|search|get|list|check)\s+(?:(?:any|a|an)\b\s+)?([a-z0-9\s&'-]+?)(?:\s+receipts?|\s+purchases?|\s+bills?|\s+expenses?|\?|$)/i,
-      /\b(?:bought|buy|purchased|purchase)\s+(?:(?:any|a|an)\b\s+)?([a-z0-9\s&'-]+?)(?:\s+receipts?|\s+purchases?|\s+bills?|\?|$)/i,
+      /\b(?:bought|bough|bght|bot|buy|purchased|purchase|got|get)\s+(?:(?:any|a|an)\b\s+)?([a-z0-9\s&'-]+?)(?:\s+receipts?|\s+purchases?|\s+bills?|\?|$)/i,
+      /\b(?:any|a|an)\s+([a-z0-9\s&'-]+?)(?:\s+receipts?|\s+purchases?|\s+bills?|\?|$)/i,
     ];
 
     for (const pattern of itemPatterns) {
@@ -131,6 +139,29 @@ export const extractFilters = (normalizedQuestion) => {
         }
       }
     }
+
+    // Fallback: If no query extracted yet, clean common query stop words and take remaining non-stopword token
+    if (!filters.query) {
+      const cleaned = normalizedQuestion
+        .replace(/[?.,!]/g, '')
+        .split(' ')
+        .filter((w) => w && w.length >= 2 && !stopWords.includes(w) && !['did', 'have', 'do', 'i', 'we', 'any', 'a', 'an', 'the', 'bough', 'bought', 'buy', 'bot', 'bght', 'is', 'there', 'got', 'get'].includes(w));
+
+      if (cleaned.length > 0) {
+        filters.query = cleaned.join(' ');
+      }
+    }
+  }
+
+  // 6. Min and Max Amount Filter Extraction (e.g. "more than 5000", "above 1000", "under 500")
+  const minMatch = normalizedQuestion.match(/\b(?:more than|above|greater than|over|exceeding)\s+(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)/i);
+  if (minMatch && minMatch[1]) {
+    filters.minAmount = parseFloat(minMatch[1]);
+  }
+
+  const maxMatch = normalizedQuestion.match(/\b(?:less than|under|below|smaller than)\s+(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)/i);
+  if (maxMatch && maxMatch[1]) {
+    filters.maxAmount = parseFloat(maxMatch[1]);
   }
 
   return filters;

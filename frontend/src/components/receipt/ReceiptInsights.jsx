@@ -98,24 +98,29 @@ export const ReceiptInsights = ({ receiptId }) => {
   }
 
   return (
-    <Card className="p-4 border-indigo-100 bg-gradient-to-r from-indigo-50/60 via-slate-50 to-purple-50/40 shadow-xs transition-opacity duration-150 ease-in-out">
-      <div className="flex items-center gap-2 mb-2.5">
-        <div className="flex items-center justify-center p-1 rounded bg-indigo-100/80 text-indigo-600">
-          <Sparkles className="h-3.5 w-3.5" />
+    <Card className="p-4 border-slate-200 bg-white shadow-xs rounded-xl transition-all duration-200">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className="p-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
+            <Sparkles className="h-3.5 w-3.5 text-slate-800" />
+          </div>
+          <h3 className="text-xs font-bold tracking-tight text-slate-900">
+            Insights
+          </h3>
         </div>
-        <h3 className="text-xs font-bold tracking-tight text-slate-900">
-          Insights
-        </h3>
+        <span className="text-[10px] font-semibold text-slate-600 uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+          ✨ Micro-Insights
+        </span>
       </div>
 
-      <ul className="space-y-1.5 pl-0.5">
+      <div className="space-y-2">
         {insights.map((bullet, idx) => (
-          <li key={idx} className="flex items-start gap-2 text-xs text-slate-700 font-medium leading-relaxed">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
-            <span>{bullet}</span>
-          </li>
+          <div key={idx} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 flex items-start gap-2.5">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-slate-700 mt-1.5 shrink-0" />
+            <span className="text-xs text-slate-700 font-medium leading-relaxed">{bullet}</span>
+          </div>
         ))}
-      </ul>
+      </div>
     </Card>
   );
 };

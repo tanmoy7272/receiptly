@@ -25,18 +25,41 @@ export const buildReceiptWhereClause = ({ userId, filters = {} }) => {
     userId,
   };
 
-  // 1. Merchant filter with normalization
-  if (filters.merchant && typeof filters.merchant === 'string') {
-    const merchantNormalized = normalizeMerchantName(filters.merchant);
-    where.OR = [
-      { merchantNormalized: { contains: merchantNormalized, mode: 'insensitive' } },
-      { merchant: { contains: filters.merchant, mode: 'insensitive' } },
-    ];
+  // 1. Multi-merchant and single merchant filter with normalization
+  const merchantList = Array.isArray(filters.merchants)
+    ? filters.merchants
+    : typeof filters.merchant === 'string'
+      ? filters.merchant.split(/,|\band\b/i).map((m) => m.trim()).filter(Boolean)
+      : [];
+
+  if (merchantList.length > 0) {
+    where.OR = merchantList.flatMap((m) => {
+      const norm = normalizeMerchantName(m);
+      return [
+        { merchantNormalized: { contains: norm, mode: 'insensitive' } },
+        { merchant: { contains: m, mode: 'insensitive' } },
+      ];
+    });
   }
 
-  // 2. Category filter
-  if (filters.category && typeof filters.category === 'string') {
-    where.category = { equals: filters.category, mode: 'insensitive' };
+  // 2. Multi-category and single category filter
+  const categoryList = Array.isArray(filters.categories)
+    ? filters.categories
+    : typeof filters.category === 'string'
+      ? filters.category.split(/,|\band\b/i).map((c) => c.trim()).filter(Boolean)
+      : [];
+
+  if (categoryList.length > 1) {
+    const catConditions = categoryList.map((c) => ({ category: { equals: c, mode: 'insensitive' } }));
+    if (where.OR) {
+      const existingOr = where.OR;
+      delete where.OR;
+      where.AND = [{ OR: existingOr }, { OR: catConditions }];
+    } else {
+      where.OR = catConditions;
+    }
+  } else if (categoryList.length === 1) {
+    where.category = { equals: categoryList[0], mode: 'insensitive' };
   }
 
   // 3. Invoice Number filter
@@ -66,6 +89,16 @@ export const buildReceiptWhereClause = ({ userId, filters = {} }) => {
       if (startDate) where.purchaseDate.gte = startDate;
       if (endDate) where.purchaseDate.lte = endDate;
     }
+  }
+
+  // 6. Min Amount and Max Amount range filter (e.g. "above 5000", "under 1000", "more than 500")
+  const minAmt = filters.minAmount !== undefined && filters.minAmount !== null ? Number(filters.minAmount) : NaN;
+  const maxAmt = filters.maxAmount !== undefined && filters.maxAmount !== null ? Number(filters.maxAmount) : NaN;
+
+  if (!isNaN(minAmt) || !isNaN(maxAmt)) {
+    where.amount = {};
+    if (!isNaN(minAmt)) where.amount.gte = minAmt;
+    if (!isNaN(maxAmt)) where.amount.lte = maxAmt;
   }
 
   return where;

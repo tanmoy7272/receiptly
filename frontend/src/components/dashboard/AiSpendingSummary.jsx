@@ -91,24 +91,41 @@ export const AiSpendingSummary = () => {
   }
 
   return (
-    <Card className="p-4 sm:p-5 border-indigo-100 bg-gradient-to-r from-indigo-50/60 via-slate-50 to-purple-50/40 shadow-xs">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="flex items-center justify-center p-1 rounded-md bg-indigo-100/80 text-indigo-600">
-          <Sparkles className="h-4 w-4" />
+    <Card className="p-5 sm:p-6 border-slate-200 bg-white shadow-xs rounded-xl transition-all duration-200">
+      {/* Header Badge */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="p-1.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center">
+            <Sparkles className="h-4 w-4 text-slate-800" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold tracking-tight text-slate-900">
+              Spending Insights
+            </h2>
+            <p className="text-[11px] text-slate-500 font-normal">
+              Real-time spend patterns & trend analysis
+            </p>
+          </div>
         </div>
-        <h2 className="text-sm font-bold tracking-tight text-slate-900">
-          Spending Insights
-        </h2>
+        <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 tracking-wide uppercase">
+          ✨ AI Summary
+        </span>
       </div>
 
-      <ul className="space-y-2 pl-1">
+      {/* Micro-Insight Cards Grid */}
+      <div className="grid gap-2.5 sm:grid-cols-2">
         {summary.map((bullet, idx) => (
-          <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-700 font-medium leading-relaxed">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
-            <span>{bullet}</span>
-          </li>
+          <div
+            key={idx}
+            className="p-3 rounded-lg bg-slate-50 border border-slate-200/80 hover:border-slate-300 transition-all flex items-start gap-2.5"
+          >
+            <span className="inline-block h-2 w-2 rounded-full bg-slate-700 mt-1.5 shrink-0" />
+            <p className="text-xs text-slate-700 font-medium leading-relaxed">
+              {bullet}
+            </p>
+          </div>
         ))}
-      </ul>
+      </div>
     </Card>
   );
 };

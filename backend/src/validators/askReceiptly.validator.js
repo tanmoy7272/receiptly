@@ -10,12 +10,16 @@ import { SUPPORTED_INTENTS, PERIOD_ENUMS, CONFIDENCE_ENUMS } from '../ai/intent/
 
 export const askReceiptlyFiltersSchema = z.object({
   merchant: z.string().trim().optional(),
+  merchants: z.array(z.string()).optional(),
   category: z.string().trim().optional(),
-  period: z.nativeEnum(PERIOD_ENUMS).optional(),
+  categories: z.array(z.string()).optional(),
+  period: z.string().trim().optional(),
   invoiceNumber: z.string().trim().optional(),
   query: z.string().trim().optional(),
   limit: z.number().positive().optional(),
   year: z.number().optional(),
+  minAmount: z.number().optional(),
+  maxAmount: z.number().optional(),
 });
 
 export const askReceiptlyResultSchema = z.discriminatedUnion('supported', [

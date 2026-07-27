@@ -36,10 +36,19 @@ describe('Ask Receiptly Intent Engine (Prompt 1)', () => {
   });
 
   describe('extractFilters Helper', () => {
-    it('should extract period enums correctly', () => {
-      expect(extractFilters('how much did i spend this month').period).toBe(PERIOD_ENUMS.THIS_MONTH);
+    it('should extract period enums correctly without spurious query filters', () => {
+      const f1 = extractFilters('how much did i spend this month');
+      expect(f1.period).toBe(PERIOD_ENUMS.THIS_MONTH);
+      expect(f1.query).toBeUndefined();
+
       expect(extractFilters('spending last month').period).toBe(PERIOD_ENUMS.LAST_MONTH);
       expect(extractFilters('purchases this year').period).toBe(PERIOD_ENUMS.THIS_YEAR);
+    });
+
+    it('should not extract spurious query filters for preset aggregation questions', () => {
+      expect(extractFilters('What was my biggest purchase?').query).toBeUndefined();
+      expect(extractFilters('How many receipts do I have?').query).toBeUndefined();
+      expect(extractFilters('What is my average purchase amount?').query).toBeUndefined();
     });
 
     it('should extract categories from RECEIPT_CATEGORIES single source of truth', () => {
@@ -134,6 +143,13 @@ describe('Ask Receiptly Intent Engine (Prompt 1)', () => {
       const res2 = classifyQuestion('Explain React useState hook');
       expect(res2.supported).toBe(false);
       expect(res2.reason).toBe('unsupported_question');
+    });
+
+    it('should classify natural item searches with typos (e.g. i bough any tv?)', () => {
+      const res = classifyQuestion('i bough any tv?');
+      expect(res.supported).toBe(true);
+      expect(res.intent).toBe(SUPPORTED_INTENTS.SEARCH_RECEIPTS);
+      expect(res.filters.query).toBe('tv');
     });
 
     it('should handle ALL CAPS, emojis, extra spaces, and special characters', () => {

@@ -16,7 +16,7 @@ import { buildReceiptInsightsPrompt } from '../prompts/receiptInsights.prompt.js
 import { logger } from '../utils/logger.js';
 
 // Cache configuration constants
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const TIMEOUT_MS = 10000; // 10 seconds
 
 // Standardized bounded TTL cache: 5 minutes TTL, max 500 entries
@@ -99,19 +99,28 @@ export const getReceiptInsights = async (receiptId, userId) => {
       return { enabled: false, insights: [] };
     }
 
-    // 6. Construct lightweight metadata payload (never send images or raw files)
+    // 6. Construct lightweight metadata payload with derived contextual signals
     const hasWarranty = Boolean(receipt.hasWarranty || receipt.warrantyExpiryDate);
+    const amount = Number(receipt.amount) || 0;
+    const isDigitalOrSubscriptionCandidate = Boolean(
+      (receipt.merchant && /google|apple|netflix|spotify|aws|microsoft|adobe|openai|swiggy|zomato|amazon/i.test(receipt.merchant)) ||
+      (receipt.title && /subscription|cloud|storage|membership|pro|ultra|premium|plan|monthly|annual/i.test(receipt.title)) ||
+      (receipt.category && /shopping|software|subscriptions|entertainment|services/i.test(receipt.category))
+    );
+
     const metadataPayload = {
       title: receipt.title,
       merchant: receipt.merchant,
       category: receipt.category,
-      amount: Number(receipt.amount) || 0,
+      amount,
       currency: receipt.currency || 'INR',
       purchaseDate: receipt.purchaseDate ? new Date(receipt.purchaseDate).toISOString().split('T')[0] : null,
       invoiceNumber: receipt.invoiceNumber || null,
       hasWarranty,
       warrantyMonths: receipt.warrantyMonths || null,
       warrantyExpiryDate: receipt.warrantyExpiryDate ? new Date(receipt.warrantyExpiryDate).toISOString().split('T')[0] : null,
+      isDigitalOrSubscriptionCandidate,
+      isHighValue: amount >= 5000,
       notes: receipt.notes || null,
     };
 

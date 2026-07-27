@@ -48,24 +48,45 @@ export const handleTopEntities = async ({ userId, intent, filters }) => {
   const name = top[groupByField] || 'Other';
   const totalSpent = Math.round((Number(top._sum.amount) || 0) * 100) / 100;
 
+  const RECEIPT_DTO_SELECT = {
+    id: true,
+    title: true,
+    merchant: true,
+    merchantNormalized: true,
+    amount: true,
+    currency: true,
+    category: true,
+    purchaseDate: true,
+    invoiceNumber: true,
+    notes: true,
+    tags: true,
+    hasWarranty: true,
+    warrantyExpiryDate: true,
+    warrantyMonths: true,
+  };
+
   const topReceiptsRaw = await prisma.receipt.findMany({
     where: {
       ...where,
       [groupByField]: top[groupByField],
     },
-    select: { title: true, merchant: true, amount: true, currency: true, purchaseDate: true, category: true },
+    select: RECEIPT_DTO_SELECT,
     orderBy: { purchaseDate: 'desc' },
     take: 5,
   });
 
-  const sampleReceipts = topReceiptsRaw.map((r) => ({
-    title: r.title,
-    merchant: r.merchant,
-    amount: Number(r.amount) || 0,
-    currency: r.currency || 'INR',
-    purchaseDate: r.purchaseDate ? new Date(r.purchaseDate).toISOString().split('T')[0] : null,
-    category: r.category,
-  }));
+  const now = new Date();
+  const sampleReceipts = topReceiptsRaw.map((r) => {
+    const isExpired = r.warrantyExpiryDate ? new Date(r.warrantyExpiryDate) < now : false;
+    const isActiveWarranty = Boolean(r.hasWarranty && !isExpired);
+    return {
+      ...r,
+      amount: Number(r.amount) || 0,
+      purchaseDate: r.purchaseDate ? new Date(r.purchaseDate).toISOString().split('T')[0] : null,
+      warrantyExpiryDate: r.warrantyExpiryDate ? new Date(r.warrantyExpiryDate).toISOString().split('T')[0] : null,
+      warrantyStatus: isActiveWarranty ? 'ACTIVE' : isExpired ? 'EXPIRED' : 'NONE',
+    };
+  });
 
   return successResult(
     intent,

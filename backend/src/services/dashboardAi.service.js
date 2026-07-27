@@ -99,6 +99,14 @@ export const getDashboardAiSummary = async (userId) => {
     const monthlyTrend = calculateMonthlyTrend(monthlySpending);
     const activeWarranties = Number(dashboardData?.activeWarranties) || 0;
 
+    const prevAmount = Number(monthlySpending[monthlySpending.length - 2]?.totalAmount) || 0;
+    const currAmount = Number(monthlySpending[monthlySpending.length - 1]?.totalAmount) || 0;
+    const momPctChange = prevAmount > 0 ? Math.round(((currAmount - prevAmount) / prevAmount) * 100) : null;
+
+    const topCategoryName = categoryBreakdown[0]?.category || null;
+    const topCategoryAmount = Number(categoryBreakdown[0]?.totalAmount) || 0;
+    const topCategoryPct = totalSpent > 0 ? Math.round((topCategoryAmount / totalSpent) * 100) : 0;
+
     // 5. Sanity check input analytics payload before sending to AI
     if (totalSpent < 0 || totalReceipts < 0) {
       logger.warn(`Invalid dashboard stats for user ${userId}`);
@@ -108,8 +116,10 @@ export const getDashboardAiSummary = async (userId) => {
     const analyticsPayload = {
       totalSpent,
       receiptCount: totalReceipts,
-      topCategories,
       monthlyTrend,
+      momPctChange: momPctChange !== null ? `${momPctChange > 0 ? '+' : ''}${momPctChange}%` : 'N/A',
+      topCategories,
+      topCategoryShare: topCategoryName ? `${topCategoryName} (${topCategoryPct}% of spend)` : null,
       activeWarranties,
     };
 

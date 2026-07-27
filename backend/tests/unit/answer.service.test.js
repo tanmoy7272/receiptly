@@ -1,17 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { generateNaturalAnswer, answerCache, computeAnswerCacheKey } from '../../src/ai/answer/answer.service.js';
-import { groq } from '../../src/ai/groqClient.js';
+import { callGroqChatCompletion } from '../../src/ai/groqClient.js';
 import { checkAiRateLimit } from '../../src/ai/rateLimiter.js';
 import { SUPPORTED_INTENTS } from '../../src/ai/intent/supportedIntents.js';
 
 vi.mock('../../src/ai/groqClient.js', () => ({
-  groq: {
-    chat: {
-      completions: {
-        create: vi.fn(),
-      },
-    },
-  },
+  callGroqChatCompletion: vi.fn(),
   TEXT_MODEL: 'llama-3.3-70b-versatile',
   isAiEnabled: vi.fn(() => true),
 }));
@@ -35,7 +29,7 @@ describe('Ask Receiptly Answer Generator Service (Prompt 3)', () => {
 
     expect(res.success).toBe(true);
     expect(res.answeredBy).toBe('fallback');
-    expect(res.answer).toContain('Receiptly can answer questions about your receipts');
+    expect(res.answer).toContain('answer questions about your receipts');
   });
 
   it('should return deterministic response for empty query result (0 Groq calls)', async () => {
@@ -55,7 +49,7 @@ describe('Ask Receiptly Answer Generator Service (Prompt 3)', () => {
   });
 
   it('should call Groq AI and format natural language answer', async () => {
-    groq.chat.completions.create.mockResolvedValue({
+    callGroqChatCompletion.mockResolvedValue({
       choices: [
         {
           message: {
@@ -84,7 +78,7 @@ describe('Ask Receiptly Answer Generator Service (Prompt 3)', () => {
   });
 
   it('should use versioned cache for repeated questions', async () => {
-    groq.chat.completions.create.mockResolvedValue({
+    callGroqChatCompletion.mockResolvedValue({
       choices: [
         {
           message: {
@@ -111,7 +105,7 @@ describe('Ask Receiptly Answer Generator Service (Prompt 3)', () => {
     expect(res2.success).toBe(true);
     expect(res2.cacheHit).toBe(true);
     expect(res2.answeredBy).toBe('ai');
-    expect(groq.chat.completions.create).toHaveBeenCalledTimes(1);
+    expect(callGroqChatCompletion).toHaveBeenCalledTimes(1);
   });
 
   it('should handle rate limiting gracefully with fallback answer', async () => {
@@ -129,6 +123,6 @@ describe('Ask Receiptly Answer Generator Service (Prompt 3)', () => {
 
     expect(res.success).toBe(true);
     expect(res.answeredBy).toBe('fallback');
-    expect(res.answer).toContain('reached the temporary AI limit');
+    expect(res.answer).toContain('Your total spend is ₹1000 across 2 receipts.');
   });
 });

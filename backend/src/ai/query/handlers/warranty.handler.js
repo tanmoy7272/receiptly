@@ -28,11 +28,16 @@ const RECEIPT_DTO_SELECT = {
 
 const formatReceiptDto = (r) => {
   if (!r) return null;
+  const now = new Date();
+  const isExpired = r.warrantyExpiryDate ? new Date(r.warrantyExpiryDate) < now : false;
+  const isActiveWarranty = Boolean(r.hasWarranty && !isExpired);
+
   return {
     ...r,
     amount: Number(r.amount) || 0,
     purchaseDate: r.purchaseDate ? new Date(r.purchaseDate).toISOString().split('T')[0] : null,
     warrantyExpiryDate: r.warrantyExpiryDate ? new Date(r.warrantyExpiryDate).toISOString().split('T')[0] : null,
+    warrantyStatus: isActiveWarranty ? 'ACTIVE' : isExpired ? 'EXPIRED' : 'NONE',
   };
 };
 
@@ -40,12 +45,13 @@ const formatReceiptDto = (r) => {
  * Handles ACTIVE_WARRANTIES and EXPIRING_WARRANTIES intents
  */
 export const handleWarrantyQueries = async ({ userId, intent, filters }) => {
+  const where = buildReceiptWhereClause({ userId, filters });
   const now = new Date();
   const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
   const warrantyConditions = intent === SUPPORTED_INTENTS.EXPIRING_WARRANTIES
-    ? [{ warrantyExpiryDate: { gte: now, lte: thirtyDaysFromNow } }]
-    : [{ warrantyExpiryDate: { gte: now } }, { hasWarranty: true }];
+    ? [{ hasWarranty: true, warrantyExpiryDate: { gte: now, lte: thirtyDaysFromNow } }]
+    : [{ hasWarranty: true, OR: [{ warrantyExpiryDate: { gte: now } }, { warrantyExpiryDate: null }] }];
 
   if (where.OR) {
     const existingOr = where.OR;
@@ -55,7 +61,7 @@ export const handleWarrantyQueries = async ({ userId, intent, filters }) => {
       { OR: warrantyConditions },
     ];
   } else {
-    where.OR = warrantyConditions;
+    where.AND = warrantyConditions;
   }
 
   const rawReceipts = await prisma.receipt.findMany({

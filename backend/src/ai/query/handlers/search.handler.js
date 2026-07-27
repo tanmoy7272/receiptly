@@ -20,19 +20,25 @@ const RECEIPT_DTO_SELECT = {
   category: true,
   purchaseDate: true,
   invoiceNumber: true,
-  hasWarranty: true,
-  warrantyExpiryDate: true,
   notes: true,
   tags: true,
+  hasWarranty: true,
+  warrantyExpiryDate: true,
+  warrantyMonths: true,
 };
 
 const formatReceiptDto = (r) => {
   if (!r) return null;
+  const now = new Date();
+  const isExpired = r.warrantyExpiryDate ? new Date(r.warrantyExpiryDate) < now : false;
+  const isActiveWarranty = Boolean(r.hasWarranty && !isExpired);
+
   return {
     ...r,
     amount: Number(r.amount) || 0,
     purchaseDate: r.purchaseDate ? new Date(r.purchaseDate).toISOString().split('T')[0] : null,
     warrantyExpiryDate: r.warrantyExpiryDate ? new Date(r.warrantyExpiryDate).toISOString().split('T')[0] : null,
+    warrantyStatus: isActiveWarranty ? 'ACTIVE' : isExpired ? 'EXPIRED' : 'NONE',
   };
 };
 

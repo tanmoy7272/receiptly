@@ -9,7 +9,7 @@
 
 export const getUnsupportedAnswer = () => ({
   success: true,
-  answer: 'Receiptly can answer questions about your receipts, spending totals, merchants, categories, active warranties, and invoices.',
+  answer: "I can help answer questions about your receipts, spending totals, merchants, categories, and invoices.",
   answeredBy: 'fallback',
 });
 
@@ -17,7 +17,7 @@ export const getEmptyResultAnswer = (intent = '', filters = {}) => {
   if (filters.query) {
     return {
       success: true,
-      answer: `I couldn't find any receipts for "${filters.query}" in your vault.`,
+      answer: `I couldn't find any receipts matching "${filters.query}".`,
       answeredBy: 'fallback',
     };
   }
@@ -25,7 +25,15 @@ export const getEmptyResultAnswer = (intent = '', filters = {}) => {
   if (filters.merchant) {
     return {
       success: true,
-      answer: `I couldn't find any receipts for ${filters.merchant} in your vault.`,
+      answer: `I couldn't find any receipts for ${filters.merchant}.`,
+      answeredBy: 'fallback',
+    };
+  }
+
+  if (filters.category) {
+    return {
+      success: true,
+      answer: `I couldn't find any receipts under the ${filters.category} category.`,
       answeredBy: 'fallback',
     };
   }
@@ -33,7 +41,7 @@ export const getEmptyResultAnswer = (intent = '', filters = {}) => {
   if (intent.includes('WARRANTY') || intent.includes('WARRANTIES')) {
     return {
       success: true,
-      answer: 'No matching active or expiring warranties were found in your receipt vault.',
+      answer: 'No matching active or expiring warranties were found.',
       answeredBy: 'fallback',
     };
   }
@@ -41,21 +49,21 @@ export const getEmptyResultAnswer = (intent = '', filters = {}) => {
   if (intent.includes('INVOICE')) {
     return {
       success: true,
-      answer: 'No matching receipt with that invoice number was found in your vault.',
+      answer: 'No matching receipt with that invoice number was found.',
       answeredBy: 'fallback',
     };
   }
 
   return {
     success: true,
-    answer: 'I couldn\'t find any matching receipts for that request in your vault.',
+    answer: "I couldn't find any matching receipts for that request.",
     answeredBy: 'fallback',
   };
 };
 
 export const getDisabledAnswer = () => ({
   success: true,
-  answer: 'AI assistance features are currently disabled. You can browse your receipts directly in the vault.',
+  answer: 'AI assistance features are currently disabled. You can browse your receipts directly on your dashboard.',
   answeredBy: 'fallback',
 });
 

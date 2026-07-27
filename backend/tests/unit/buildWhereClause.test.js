@@ -42,4 +42,16 @@ describe('Ask Receiptly buildWhereClause Utility', () => {
     expect(where.purchaseDate.gte).toBeInstanceOf(Date);
     expect(where.purchaseDate.lte).toBeInstanceOf(Date);
   });
+
+  it('should support multi-merchant queries like Zomato and Flipkart', () => {
+    const where = buildReceiptWhereClause({
+      userId: 'user-123',
+      filters: { merchant: 'Zomato and Flipkart' },
+    });
+
+    expect(where.OR).toBeDefined();
+    expect(where.OR.length).toBe(4);
+    expect(where.OR.some((c) => c.merchant?.contains === 'Zomato')).toBe(true);
+    expect(where.OR.some((c) => c.merchant?.contains === 'Flipkart')).toBe(true);
+  });
 });

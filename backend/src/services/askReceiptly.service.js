@@ -8,7 +8,7 @@
  *          3. AI Answer Generator (generateNaturalAnswer)
  * ============================================================================
  */
-import { classifyQuestion } from '../ai/intent/classifyIntent.js';
+import { classifyQuestion, classifyQuestionAsync } from '../ai/intent/classifyIntent.js';
 import { executeIntent } from '../ai/query/queryEngine.js';
 import { generateNaturalAnswer } from '../ai/answer/answer.service.js';
 
@@ -20,8 +20,8 @@ import { generateNaturalAnswer } from '../ai/answer/answer.service.js';
  * @returns {Promise<Object>} API response payload
  */
 export const processUserQuestion = async ({ userId, question }) => {
-  // Stage 1: Intent Classification
-  const intentResult = classifyQuestion(question);
+  // Stage 1: AI Intent Classification (Groq LLM with intelligent fallback)
+  const intentResult = await classifyQuestionAsync(question);
 
   if (!intentResult || intentResult.supported === false) {
     return {
