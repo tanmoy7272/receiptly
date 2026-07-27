@@ -12,10 +12,13 @@ export const inspectPdfBuffer = async (buffer) => {
     const uint8Array = new Uint8Array(buffer);
     const parser = new PDFParse(uint8Array);
     const textResult = await parser.getText();
-    const text = textResult?.text || '';
+    let text = (textResult?.text || '').replace(/-- \d+ of \d+ --/g, '').trim();
+    if (!text && Array.isArray(textResult?.pages)) {
+      text = textResult.pages.map((p) => p.text || '').join('\n').trim();
+    }
     const numpages = typeof textResult?.total === 'number' ? textResult.total : 1;
     await parser.destroy();
-    return { text: text.trim(), numpages };
+    return { text, numpages };
   } catch (err) {
     logger.warn('PDF Parse extraction warning:', err.message);
     return { text: '', numpages: 1 };
