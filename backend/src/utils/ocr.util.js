@@ -44,6 +44,12 @@ export const performLocalOCR = async (imageBuffer) => {
       return null;
     }
 
+    // Guard: Never pass PDF binary buffers to sharp/tesseract to prevent native C++ segfaults
+    const magicHeader = imageBuffer.slice(0, 4).toString('utf-8');
+    if (magicHeader.startsWith('%PDF')) {
+      return null;
+    }
+
     let bufferToProcess = imageBuffer;
     try {
       bufferToProcess = await sharp(imageBuffer)
@@ -83,13 +89,7 @@ export const extractDocumentText = async (fileBuffer, mimetype) => {
       logger.info(`Extracted ${text.length} characters across ${numpages} PDF page(s).`);
       return { type: 'text', content: text, numpages };
     }
-    // Image/Scanned PDF Fallback: Run Tesseract OCR on image buffer
-    const ocrText = await performLocalOCR(fileBuffer);
-    if (ocrText && ocrText.length >= 2) {
-      logger.info(`Tesseract OCR extracted ${ocrText.length} characters from scanned PDF/image buffer.`);
-      return { type: 'text', content: ocrText, numpages };
-    }
-    logger.warn(`PDF file (${numpages} page(s)) contains no readable text or OCR content.`);
+    logger.warn(`PDF file (${numpages} page(s)) contains no readable plain text.`);
     return { type: 'pdf_scanned', content: null, numpages };
   }
 
